@@ -19,7 +19,7 @@ jobs:
       - name: Publish on Winget
         uses: vedantmgoyal2009/winget-releaser@v2
         with:
-          identifier: FreesTeam.FreesmLauncher
+          identifier: HalkyLauncher.HalkyLauncher
           version: ${{ github.event.release.tag_name }}
-          installers-regex: 'FreesmLauncher-Windows-MSVC(:?-arm64|-Legacy)?-Setup-.+\.exe$'
+          installers-regex: 'HalkyLauncher-Windows-MSVC(:?-arm64|-Legacy)?-Setup-.+\.exe$'
           token: ${{ secrets.WINGET_TOKEN }}
