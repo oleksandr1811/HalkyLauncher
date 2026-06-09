@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   update-flake:
-    if: github.repository == 'FreesmTeam/FreesmLauncher'
+    if: github.repository == 'Oleksandr1811/HalkyLauncher'
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
           commit-msg: "chore(nix): update `flake.lock` via CI/CD"
           pr-title: "chore(nix): update `flake.lock`"
           pr-labels: |
-            [0] : Freesm
+            [0] : Halky
             [1] : Nix-related
             [2] : Chore (other)
             [3] : Priority: Low

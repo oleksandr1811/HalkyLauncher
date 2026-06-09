@@ -26,7 +26,7 @@ jobs:
     needs: build_release
     permissions:
       contents: write
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           submodules: "true"
-          path: "FreesmLauncher-source"
+          path: "HalkyLauncher-source"
       - name: Download artifacts
         uses: actions/download-artifact@v8
       - name: Grab and store version
@@ -43,51 +43,51 @@ jobs:
           echo "VERSION=$tag_name" >> $GITHUB_ENV
       - name: Package artifacts properly
         run: |
-          mv ${{ github.workspace }}/FreesmLauncher-source FreesmLauncher-${{ env.VERSION }}
-          mv FreesmLauncher-Linux-Qt6-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
-          mv FreesmLauncher-Linux-aarch64-Qt6-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-aarch64-Qt6-Portable-${{ env.VERSION }}.tar.gz
-          mv FreesmLauncher-*.AppImage/FreesmLauncher-*-x86_64.AppImage FreesmLauncher-Linux-x86_64.AppImage
-          mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*-x86_64.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
-          mv FreesmLauncher-*.AppImage/FreesmLauncher-*-aarch64.AppImage FreesmLauncher-Linux-aarch64.AppImage
-          mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*-aarch64.AppImage.zsync FreesmLauncher-Linux-aarch64.AppImage.zsync
-          mv FreesmLauncher-macOS*/FreesmLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
-          mv FreesmLauncher-macOS*/FreesmLauncher.dmg FreesmLauncher-macOS-${{ env.VERSION }}.dmg
+          mv ${{ github.workspace }}/HalkyLauncher-source HalkyLauncher-${{ env.VERSION }}
+          mv HalkyLauncher-Linux-Qt6-Portable*/HalkyLauncher-portable.tar.gz HalkyLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
+          mv HalkyLauncher-Linux-aarch64-Qt6-Portable*/HalkyLauncher-portable.tar.gz HalkyLauncher-Linux-aarch64-Qt6-Portable-${{ env.VERSION }}.tar.gz
+          mv HalkyLauncher-*.AppImage/HalkyLauncher-*-x86_64.AppImage HalkyLauncher-Linux-x86_64.AppImage
+          mv HalkyLauncher-*.AppImage.zsync/HalkyLauncher-*-x86_64.AppImage.zsync HalkyLauncher-Linux-x86_64.AppImage.zsync
+          mv HalkyLauncher-*.AppImage/HalkyLauncher-*-aarch64.AppImage HalkyLauncher-Linux-aarch64.AppImage
+          mv HalkyLauncher-*.AppImage.zsync/HalkyLauncher-*-aarch64.AppImage.zsync HalkyLauncher-Linux-aarch64.AppImage.zsync
+          mv HalkyLauncher-macOS*/HalkyLauncher.zip HalkyLauncher-macOS-${{ env.VERSION }}.zip
+          mv HalkyLauncher-macOS*/HalkyLauncher.dmg HalkyLauncher-macOS-${{ env.VERSION }}.dmg
 
-          tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
+          tar --exclude='.git' -czf HalkyLauncher-${{ env.VERSION }}.tar.gz HalkyLauncher-${{ env.VERSION }}
 
-          for d in FreesmLauncher-Windows-MSVC*; do
+          for d in HalkyLauncher-Windows-MSVC*; do
             cd "${d}" || continue
             LEGACY="$(echo -n ${d} | grep -o Legacy || true)"
             ARM64="$(echo -n ${d} | grep -o arm64 || true)"
             INST="$(echo -n ${d} | grep -o Setup || true)"
             PORT="$(echo -n ${d} | grep -o Portable || true)"
-            NAME="FreesmLauncher-Windows-MSVC"
+            NAME="HalkyLauncher-Windows-MSVC"
             test -z "${LEGACY}" || NAME="${NAME}-Legacy"
             test -z "${ARM64}" || NAME="${NAME}-arm64"
             test -z "${PORT}" || NAME="${NAME}-Portable"
-            test -z "${INST}" || mv FreesmLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
+            test -z "${INST}" || mv HalkyLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
             cd ..
           done
 
-          for d in FreesmLauncher-Windows-MinGW-w64*; do
+          for d in HalkyLauncher-Windows-MinGW-w64*; do
             cd "${d}" || continue
             INST="$(echo -n ${d} | grep -o Setup || true)"
             PORT="$(echo -n ${d} | grep -o Portable || true)"
-            NAME="FreesmLauncher-Windows-MinGW-w64"
+            NAME="HalkyLauncher-Windows-MinGW-w64"
             test -z "${PORT}" || NAME="${NAME}-Portable"
-            test -z "${INST}" || mv FreesmLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
+            test -z "${INST}" || mv HalkyLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
             cd ..
           done
 
-          for d in FreesmLauncher-Windows-MinGW-arm64*; do
+          for d in HalkyLauncher-Windows-MinGW-arm64*; do
             cd "${d}" || continue
             INST="$(echo -n ${d} | grep -o Setup || true)"
             PORT="$(echo -n ${d} | grep -o Portable || true)"
-            NAME="FreesmLauncher-Windows-MinGW-arm64"
+            NAME="HalkyLauncher-Windows-MinGW-arm64"
             test -z "${PORT}" || NAME="${NAME}-Portable"
-            test -z "${INST}" || mv FreesmLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
+            test -z "${INST}" || mv HalkyLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
             cd ..
           done
@@ -98,29 +98,29 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.ref }}
-          name: Freesm Launcher ${{ env.VERSION }}
+          name: Halky Launcher ${{ env.VERSION }}
           draft: true
           prerelease: false
           fail_on_unmatched_files: true
           files: |
-            FreesmLauncher-Linux-x86_64.AppImage
-            FreesmLauncher-Linux-x86_64.AppImage.zsync
-            FreesmLauncher-Linux-aarch64.AppImage
-            FreesmLauncher-Linux-aarch64.AppImage.zsync
-            FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
-            FreesmLauncher-Linux-aarch64-Qt6-Portable-${{ env.VERSION }}.tar.gz
-            FreesmLauncher-Windows-MinGW-w64-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MinGW-w64-Portable-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MinGW-w64-Setup-${{ env.VERSION }}.exe
-            FreesmLauncher-Windows-MinGW-arm64-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MinGW-arm64-Portable-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MinGW-arm64-Setup-${{ env.VERSION }}.exe
-            FreesmLauncher-Windows-MSVC-arm64-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MSVC-arm64-Portable-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MSVC-arm64-Setup-${{ env.VERSION }}.exe
-            FreesmLauncher-Windows-MSVC-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MSVC-Portable-${{ env.VERSION }}.zip
-            FreesmLauncher-Windows-MSVC-Setup-${{ env.VERSION }}.exe
-            FreesmLauncher-macOS-${{ env.VERSION }}.zip
-            FreesmLauncher-macOS-${{ env.VERSION }}.dmg
-            FreesmLauncher-${{ env.VERSION }}.tar.gz
+            HalkyLauncher-Linux-x86_64.AppImage
+            HalkyLauncher-Linux-x86_64.AppImage.zsync
+            HalkyLauncher-Linux-aarch64.AppImage
+            HalkyLauncher-Linux-aarch64.AppImage.zsync
+            HalkyLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
+            HalkyLauncher-Linux-aarch64-Qt6-Portable-${{ env.VERSION }}.tar.gz
+            HalkyLauncher-Windows-MinGW-w64-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MinGW-w64-Portable-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MinGW-w64-Setup-${{ env.VERSION }}.exe
+            HalkyLauncher-Windows-MinGW-arm64-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MinGW-arm64-Portable-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MinGW-arm64-Setup-${{ env.VERSION }}.exe
+            HalkyLauncher-Windows-MSVC-arm64-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MSVC-arm64-Portable-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MSVC-arm64-Setup-${{ env.VERSION }}.exe
+            HalkyLauncher-Windows-MSVC-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MSVC-Portable-${{ env.VERSION }}.zip
+            HalkyLauncher-Windows-MSVC-Setup-${{ env.VERSION }}.exe
+            HalkyLauncher-macOS-${{ env.VERSION }}.zip
+            HalkyLauncher-macOS-${{ env.VERSION }}.dmg
+            HalkyLauncher-${{ env.VERSION }}.tar.gz

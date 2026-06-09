@@ -105,10 +105,10 @@ jobs:
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
 
-          mv ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.freesmlauncher.FreesmLauncher.metainfo.xml ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.freesmlauncher.FreesmLauncher.appdata.xml
+          mv ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.halkylauncher.HalkyLauncher.metainfo.xml ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.halkylauncher.HalkyLauncher.appdata.xml
           export "NO_APPSTREAM=1" # we have to skip appstream checking because appstream on ubuntu 20.04 is outdated
 
-          export OUTPUT="FreesmLauncher-Linux-x86_64.AppImage"
+          export OUTPUT="HalkyLauncher-Linux-x86_64.AppImage"
 
           chmod +x linuxdeploy-*.AppImage
 
@@ -127,7 +127,7 @@ jobs:
           chmod +x AppImageUpdate-x86_64.AppImage
           cp AppImageUpdate-x86_64.AppImage ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin
 
-          export UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|FreesmLauncher-Linux-x86_64.AppImage.zsync"
+          export UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|HalkyLauncher-Linux-x86_64.AppImage.zsync"
 
           if [ '${{ secrets.GPG_PRIVATE_KEY_ID }}' != '' ]; then
             export SIGN=1
@@ -139,9 +139,9 @@ jobs:
             echo ":warning: Skipped code signing for Linux AppImage, as gpg key was not present." >> $GITHUB_STEP_SUMMARY
           fi
 
-          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -i ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/icons/hicolor/scalable/apps/org.freesmlauncher.FreesmLauncher.svg
+          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -i ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/icons/hicolor/scalable/apps/org.halkylauncher.HalkyLauncher.svg
 
-          mv "FreesmLauncher-Linux-x86_64.AppImage" "FreesmLauncher-Linux-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage"
+          mv "HalkyLauncher-Linux-x86_64.AppImage" "HalkyLauncher-Linux-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage"
 
       - name: Package (Linux, portable)
         run: |
@@ -159,32 +159,32 @@ jobs:
 
           for l in $(find ${{ env.INSTALL_PORTABLE_DIR }} -type f); do l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_PORTABLE_DIR }}/}; l=${l#./}; echo $l; done > ${{ env.INSTALL_PORTABLE_DIR }}/manifest.txt
           cd ${{ env.INSTALL_PORTABLE_DIR }}
-          tar -czf ../FreesmLauncher-portable.tar.gz *
+          tar -czf ../HalkyLauncher-portable.tar.gz *
 
       - name: Upload binary tarball (Linux, portable, Qt 5)
         if: matrix.qt_ver != 6
         uses: actions/upload-artifact@v4
         with:
-          name: FreesmLauncher-${{ runner.os }}-Qt5-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
-          path: FreesmLauncher-portable.tar.gz
+          name: HalkyLauncher-${{ runner.os }}-Qt5-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: HalkyLauncher-portable.tar.gz
 
       - name: Upload binary tarball (Linux, portable, Qt 6)
         if: matrix.qt_ver != 5
         uses: actions/upload-artifact@v4
         with:
-          name: FreesmLauncher-${{ runner.os }}-Qt6-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
-          path: FreesmLauncher-portable.tar.gz
+          name: HalkyLauncher-${{ runner.os }}-Qt6-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: HalkyLauncher-portable.tar.gz
 
       - name: Upload AppImage (Linux)
         if: matrix.qt_ver != 5
         uses: actions/upload-artifact@v4
         with:
-          name: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
-          path: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
+          name: HalkyLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
+          path: HalkyLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
 
       - name: Upload AppImage Zsync (Linux)
         if: matrix.qt_ver != 5
         uses: actions/upload-artifact@v4
         with:
-          name: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage.zsync
-          path: FreesmLauncher-Linux-x86_64.AppImage.zsync
+          name: HalkyLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage.zsync
+          path: HalkyLauncher-Linux-x86_64.AppImage.zsync
