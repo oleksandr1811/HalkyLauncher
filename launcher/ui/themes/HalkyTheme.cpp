@@ -18,7 +18,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- *      Copyright 2024-2024 Freesm Launcher Contributors
+ *      Copyright 2024-2024 Halky Launcher Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
@@ -32,21 +32,21 @@
  *      See the License for the specific language governing permissions and
  *      limitations under the License.
  */
-#include "FreesmTheme.h"
+#include "HalkyTheme.h"
 
 #include <QObject>
 
-QString FreesmTheme::id()
+QString HalkyTheme::id()
 {
-    return "freesm";
+    return "Halky";
 }
 
-QString FreesmTheme::name()
+QString HalkyTheme::name()
 {
-    return QObject::tr("Freesm Dark");
+    return QObject::tr("Halky Dark");
 }
 
-QPalette FreesmTheme::colorScheme()
+QPalette HalkyTheme::colorScheme()
 {
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(30, 30, 46));
@@ -66,22 +66,22 @@ QPalette FreesmTheme::colorScheme()
     return fadeInactive(darkPalette, fadeAmount(), fadeColor());
 }
 
-double FreesmTheme::fadeAmount()
+double HalkyTheme::fadeAmount()
 {
     return 0.5;
 }
 
-QColor FreesmTheme::fadeColor()
+QColor HalkyTheme::fadeColor()
 {
     return QColor(108, 112, 134);
 }
 
-bool FreesmTheme::hasStyleSheet()
+bool HalkyTheme::hasStyleSheet()
 {
     return true;
 }
 
-QString FreesmTheme::appStyleSheet()
+QString HalkyTheme::appStyleSheet()
 {
     return "QMainWindow, QDockWidget {background-color: #11111b;}QWidget {border-color: rgba(255, 255, 255, 8);font-family: \"Segoe UI "
            "Variable Text Semibold\", serif;border-radius: 4px;}QObject, QObject::separator, QObject::handle, QObject::tab-bar, "
@@ -280,7 +280,7 @@ QString FreesmTheme::appStyleSheet()
            "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #181825;color: white;padding: 2px;border-radius: "
            "3px;background: #181825;}QListView {padding: 5px;}";
 }
-QString FreesmTheme::tooltip()
+QString HalkyTheme::tooltip()
 {
     return "";
 }

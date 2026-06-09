@@ -30,14 +30,14 @@
 %global min_qt_version 5.12
 %endif
 
-%global _name   FreesmLauncher
-Name:           freesmlauncher
+%global _name   HalkyLauncher
+Name:           HalkyLauncher
 Version:        Maple-2.0.0
 Release:        0
 Summary:        An open source launcher for Minecraft
 License:        GPL-3.0-only
 Group:          Amusements/Games/Other
-URL:            https://freesmlauncher.org/
+URL:            https://HalkyLauncher.org/
 Source:         %{name}-%{version}.tar.xz
 BuildRequires:  cmake >= 3.15
 BuildRequires:  extra-cmake-modules

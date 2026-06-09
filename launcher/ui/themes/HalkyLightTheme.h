@@ -18,7 +18,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- *      Copyright 2024-2024 Freesm Launcher Contributors
+ *      Copyright 2024-2024 Halky Launcher Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@
 
 #include "FusionTheme.h"
 
-class FreesmTheme : public FusionTheme {
+class HalkyLightTheme : public FusionTheme {
    public:
-    virtual ~FreesmTheme() {}
+    virtual ~HalkyLightTheme() {}
 
     QString id() override;
     QString name() override;

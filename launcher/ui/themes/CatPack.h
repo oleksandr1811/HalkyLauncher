@@ -64,10 +64,10 @@ class BasicCatPack : public CatPack {
 };
 
 /// For cat packs that do not have holiday specializations
-class FreesmCatPack : public BasicCatPack {
+class HalkyCatPack : public BasicCatPack {
    public:
-    FreesmCatPack(QString id, QString name) : BasicCatPack(std::move(id), std::move(name)) {}
-    explicit FreesmCatPack(QString id) : BasicCatPack(std::move(id)) {}
+    HalkyCatPack(QString id, QString name) : BasicCatPack(std::move(id), std::move(name)) {}
+    explicit HalkyCatPack(QString id) : BasicCatPack(std::move(id)) {}
 
     QString path() const override { return QString(":/backgrounds/%1").arg(m_id); }
 };

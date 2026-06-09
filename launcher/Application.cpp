@@ -27,7 +27,7 @@
  * permission notice:
  *
  *      Copyright 2013-2021 MultiMC Contributors
- *      Copyright 2024-2025 FreesmLauncher Maintainers
+ *      Copyright 2024-2025 HalkyLauncher Maintainers
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
@@ -659,7 +659,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("fluent_dark"));
-        m_settings->registerSetting("ApplicationTheme", QString("freesm"));
+        m_settings->registerSetting("ApplicationTheme", QString("Halky"));
         m_settings->registerSetting("BackgroundCat", QString("typescript"));
         m_settings->registerSetting("Snow", isWinter);
 
@@ -1274,7 +1274,7 @@ bool Application::createSetupWizard()
             const QString style =
                 QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? QStringLiteral("dark") : QStringLiteral("bright");
 #else
-            const QString style = QStringLiteral("freesm");
+            const QString style = QStringLiteral("Halky");
 #endif
 
             settings()->set("ApplicationTheme", style);

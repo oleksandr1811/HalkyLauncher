@@ -392,7 +392,7 @@
              <item>
                  <widget class="QLabel" name="label_10">
             <property name="text">
-             <string>&lt;span style=&quot;font-weight:700;&quot;&gt;Using the official CurseForge app's API key may break CurseForge's terms of service but should allow Freesm Launcher to download all mods in a modpack without you needing to download any of them manually.&lt;/span&gt;</string>
+             <string>&lt;span style=&quot;font-weight:700;&quot;&gt;Using the official CurseForge app's API key may break CurseForge's terms of service but should allow Halky Launcher to download all mods in a modpack without you needing to download any of them manually.&lt;/span&gt;</string>
             </property>
                      <property name="wordWrap">
                          <bool>true</bool>

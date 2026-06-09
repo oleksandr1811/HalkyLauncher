@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
- *  Freesm Launcher - Minecraft Launcher
+ *  Halky Launcher - Minecraft Launcher
  *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -61,7 +61,7 @@ void FlameAPIKeyWizardPage::retranslate()
     m_titleLabel->setText(
         tr(R"(<html><head/><body><p><span style="font-size:14pt; font-weight:600;">Fetch CurseForge API key</span></p></body></html>)"));
     m_descriptionLabel->setText(
-        tr("Using the official CurseForge app's API key may break CurseForge's terms of service but should allow Freesm Launcher to "
+        tr("Using the official CurseForge app's API key may break CurseForge's terms of service but should allow Halky Launcher to "
            "download all mods in a modpack without you needing to download any of them manually. This can be done later in the settings."));
     m_fetchButton->setText(tr("Fetch Official Launcher's Key"));
 }

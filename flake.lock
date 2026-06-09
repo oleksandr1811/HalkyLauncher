@@ -5,13 +5,13 @@
       "locked": {
         "lastModified": 1772016279,
         "narHash": "sha256-7itkptyjoRcXfGLwg1/jxajetZ3a4mDc66+w4X6yW8s=",
-        "owner": "FreesmTeam",
+        "owner": "Oleksandr1811",
         "repo": "libnbtplusplus",
         "rev": "687e43031df0dc641984b4256bcca50d5b3f7de3",
         "type": "github"
       },
       "original": {
-        "owner": "FreesmTeam",
+        "owner": "Oleksandr1811",
         "repo": "libnbtplusplus",
         "type": "github"
       }

@@ -1,5 +1,5 @@
 name: Setup Dependencies
-description: Install and setup dependencies for building Freesm Launcher
+description: Install and setup dependencies for building Halky Launcher
 
 inputs:
   build-type:

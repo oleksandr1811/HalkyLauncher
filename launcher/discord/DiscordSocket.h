@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
- *  Freesm Launcher - Minecraft Launcher
+ *  Halky Launcher - Minecraft Launcher
  *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-LAUNCHER_APPID="org.freesmlauncher.FreesmLauncher"
-LAUNCHER_APP_BINARY_NAME="freesmlauncher"
+LAUNCHER_APPID="org.HalkyLauncher.HalkyLauncher"
+LAUNCHER_APP_BINARY_NAME="HalkyLauncher"
 
 svg2png() {
     input_file="$1"

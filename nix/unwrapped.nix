@@ -26,7 +26,7 @@ in
   assert lib.assertMsg (gamemodeSupport -> stdenv.hostPlatform.isLinux)
   "gamemodeSupport only on linux";
     stdenv.mkDerivation {
-      pname = "freesmlauncher-unwrapped";
+      pname = "HalkyLauncher-unwrapped";
       version = self.shortRev or self.dirtyShortRev or "_git";
       src = nix-filter.lib {
         root = self;
@@ -97,14 +97,14 @@ in
       meta = {
         description = "Prism Launcher fork aimed to provide a free way to play Minecraft";
         longDescription = ''
-          Freesm Launcher is a custom launcher for Minecraft that allows you
+          Halky Launcher is a custom launcher for Minecraft that allows you
           to easily manage multiple installations of Minecraft at once and login
           with offline account without any restrictions.
         '';
-        homepage = "https://freesmlauncher.org/";
+        homepage = "https://HalkyLauncher.org/";
         license = lib.licenses.gpl3Only;
         platforms = lib.platforms.linux ++ lib.platforms.darwin;
-        mainProgram = "freesmlauncher";
+        mainProgram = "HalkyLauncher";
         maintainers = with lib.maintainers; [s0me1newithhand7s];
       };
     }

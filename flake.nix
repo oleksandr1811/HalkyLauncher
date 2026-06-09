@@ -5,12 +5,12 @@
     substituters = [
       "https://cache.nixos.org"
       "https://cache.garnix.io"
-      "https://freesmlauncher.cachix.org"
+      "https://HalkyLauncher.cachix.org"
     ];
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-      "freesmlauncher.cachix.org-1:Jcp5Q9wiLL+EDv8Mh7c6L9xGk+lXr7/otpKxMOuBuDs="
+      "HalkyLauncher.cachix.org-1:Jcp5Q9wiLL+EDv8Mh7c6L9xGk+lXr7/otpKxMOuBuDs="
     ];
   };
 
@@ -18,7 +18,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-filter.url = "github:numtide/nix-filter";
     libnbtplusplus = {
-      url = "github:FreesmTeam/libnbtplusplus";
+      url = "github:Oleksandr1811/libnbtplusplus";
       flake = false;
     };
   };
@@ -40,36 +40,36 @@
     forEachSystem = nixpkgs.lib.genAttrs systems;
   in {
     overlays.default = final: prev: {
-      freesmlauncher-unwrapped = final.callPackage ./nix/unwrapped.nix {
+      HalkyLauncher-unwrapped = final.callPackage ./nix/unwrapped.nix {
         inherit nix-filter libnbtplusplus self;
       };
 
-      freesmlauncher = final.callPackage ./nix/wrapper.nix;
+      HalkyLauncher = final.callPackage ./nix/wrapper.nix;
     };
 
     packages = forEachSystem (system: let
       pkgs = import nixpkgs {inherit system;};
 
-      freesmlauncher-unwrapped = pkgs.callPackage ./nix/unwrapped.nix {
+      HalkyLauncher-unwrapped = pkgs.callPackage ./nix/unwrapped.nix {
         inherit nix-filter libnbtplusplus self;
       };
 
-      freesmlauncher = pkgs.callPackage ./nix/wrapper.nix {
-        inherit freesmlauncher-unwrapped;
+      HalkyLauncher = pkgs.callPackage ./nix/wrapper.nix {
+        inherit HalkyLauncher-unwrapped;
       };
 
-      freesmlauncher-unwrapped-debug = freesmlauncher-unwrapped.overrideAttrs {
+      HalkyLauncher-unwrapped-debug = HalkyLauncher-unwrapped.overrideAttrs {
         cmakeBuildType = "Debug";
         dontStrip = true;
       };
 
-      freesmlauncher-debug = pkgs.callPackage ./nix/wrapper.nix {
-        freesmlauncher-unwrapped = freesmlauncher-unwrapped-debug;
+      HalkyLauncher-debug = pkgs.callPackage ./nix/wrapper.nix {
+        HalkyLauncher-unwrapped = HalkyLauncher-unwrapped-debug;
       };
     in {
-      inherit freesmlauncher freesmlauncher-unwrapped freesmlauncher-debug freesmlauncher-unwrapped-debug;
+      inherit HalkyLauncher HalkyLauncher-unwrapped HalkyLauncher-debug HalkyLauncher-unwrapped-debug;
 
-      default = freesmlauncher;
+      default = HalkyLauncher;
     });
 
     devShells = forEachSystem (system: let
@@ -79,7 +79,7 @@
       };
     in {
       default = pkgs.mkShell {
-        inputsFrom = [pkgs.freesmlauncher-unwrapped];
+        inputsFrom = [pkgs.HalkyLauncher-unwrapped];
 
         packages = with pkgs; [
           ccache

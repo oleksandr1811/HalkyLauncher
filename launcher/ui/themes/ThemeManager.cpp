@@ -30,8 +30,8 @@
 #include "ui/themes/CatPack.h"
 #include "ui/themes/CustomTheme.h"
 #include "ui/themes/DarkTheme.h"
-#include "ui/themes/FreesmLightTheme.h"
-#include "ui/themes/FreesmTheme.h"
+#include "ui/themes/HalkyLightTheme.h"
+#include "ui/themes/HalkyTheme.h"
 #include "ui/themes/GruvboxTheme.h"
 #include "ui/themes/SystemTheme.h"
 
@@ -141,9 +141,9 @@ void ThemeManager::initializeWidgets()
     auto darkThemeId = addTheme(std::make_unique<DarkTheme>());
     themeDebugLog() << "Loading Built-in Theme:" << darkThemeId;
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<BrightTheme>());
-    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<FreesmTheme>());
+    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<HalkyTheme>());
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<GruvboxTheme>());
-    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<FreesmLightTheme>());
+    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<HalkyLightTheme>());
 
     themeDebugLog() << "<> Initializing System Widget Themes";
     QStringList styles = QStyleFactory::keys();
@@ -320,13 +320,13 @@ void ThemeManager::initializeCatPacks()
         addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id, name)));
     }
 
-    QList<std::pair<QString, QString>> freesmCats{ { "typescript", QObject::tr("You should have used Typescript") },
+    QList<std::pair<QString, QString>> HalkyCats{ { "typescript", QObject::tr("You should have used Typescript") },
                                                    { "miside-screenshot", QObject::tr("MiSide Screenshot") },
                                                    { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
                                                    { "konata-gif", QObject::tr("Low-poly Konata") },
                                                    { "cucumbers", QObject::tr("Cucumbers") } };
-    for (const auto& [id, name] : freesmCats) {
-        addCatPack(std::make_unique<FreesmCatPack>(id, name));
+    for (const auto& [id, name] : HalkyCats) {
+        addCatPack(std::make_unique<HalkyCatPack>(id, name));
     }
 
     if (!m_catPacksFolder.mkpath("."))

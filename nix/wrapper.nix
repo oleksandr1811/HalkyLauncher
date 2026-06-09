@@ -3,7 +3,7 @@
   symlinkJoin,
   kdePackages,
   addDriverRunpath,
-  freesmlauncher-unwrapped,
+  HalkyLauncher-unwrapped,
   stdenv,
   alsa-lib,
   flite,
@@ -48,7 +48,7 @@ assert lib.assertMsg (
 ) "textToSpeechSupport only has an effect on Linux."; let
   isLinux = stdenv.hostPlatform.isLinux;
 
-  launcher = freesmlauncher-unwrapped.override {
+  launcher = HalkyLauncher-unwrapped.override {
     inherit msaClientID gamemodeSupport;
   };
 
@@ -80,7 +80,7 @@ assert lib.assertMsg (
     ++ lib.optionals controllerSupport [libusb1];
 in
   symlinkJoin {
-    pname = "freesmlauncher";
+    pname = "HalkyLauncher";
     inherit (launcher) version meta;
     paths = [launcher];
     nativeBuildInputs = [kdePackages.wrapQtAppsHook];
@@ -93,7 +93,7 @@ in
     '';
 
     qtWrapperArgs =
-      ["--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"]
+      ["--prefix HalkyLauncher_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"]
       ++ lib.optionals isLinux [
         "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
         "--prefix LD_LIBRARY_PATH : ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"

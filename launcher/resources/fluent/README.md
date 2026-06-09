@@ -7,7 +7,7 @@ SPDX-License-Identifier: CC0-1.0
 Fluent
 ---
 
-Microsoft Fluent Design inspired light theme for Freesm Launcher.
+Microsoft Fluent Design inspired light theme for Halky Launcher.
 
 License
 ---
@@ -16,7 +16,7 @@ License
 
 MIT License
 
-Copyright (c) 2024 FreesmTeam
+Copyright (c) 2024 Oleksandr1811
 Copyright (c) 2020 Microsoft Corporation
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

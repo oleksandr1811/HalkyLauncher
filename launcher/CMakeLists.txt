@@ -911,12 +911,12 @@ SET(LAUNCHER_SOURCES
     # GUI - themes
     ui/themes/FusionTheme.cpp
     ui/themes/FusionTheme.h
-    ui/themes/FreesmTheme.cpp
-    ui/themes/FreesmTheme.h
+    ui/themes/HalkyTheme.cpp
+    ui/themes/HalkyTheme.h
     ui/themes/GruvboxTheme.cpp
     ui/themes/GruvboxTheme.h
-    ui/themes/FreesmLightTheme.cpp
-    ui/themes/FreesmLightTheme.h
+    ui/themes/HalkyLightTheme.cpp
+    ui/themes/HalkyLightTheme.h
     ui/themes/BrightTheme.cpp
     ui/themes/BrightTheme.h
     ui/themes/CustomTheme.cpp

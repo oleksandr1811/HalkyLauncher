@@ -4,7 +4,7 @@
 
 # Halky Launcher
 
-A Freesm Launcher fork that features an **excellent UI and rich customizations**, removes offline account restrictions, and adds custom auth server support.
+A Halky Launcher fork that features an **excellent UI and rich customizations**, removes offline account restrictions, and adds custom auth server support.
 
 *This fork is **not** endorsed by Prism Launcher or Freesm Launcher.*
 
@@ -29,14 +29,14 @@ A Freesm Launcher fork that features an **excellent UI and rich customizations**
     <p><em>Screenshots are temporarily removed</em></p>
     <!-- 
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-      <img src="screenshots/freesmlauncher_home_screenshot.png" alt="Dark theme dashboard" width="512" />
-      <img src="screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Dashboard with opacity" width="512" />
-      <img src="screenshots/freesmlauncher_home_mita.gif" alt="Mita catpack" width="512" />
-      <img src="screenshots/freesmlauncher_home_maxwell.gif" alt="Maxwell catpack" width="512" />
-      <img src="screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Accounts settings" width="512" />
-      <img src="screenshots/freesmlauncher_instance_add_screenshot.png" alt="Add instance" width="512" />
-      <img src="screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Instance settings" width="512" />
-      <img src="screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Theme settings" width="512" />
+      <img src="screenshots/HalkyLauncher_home_screenshot.png" alt="Dark theme dashboard" width="512" />
+      <img src="screenshots/HalkyLauncher_home_screenshot_opacity.png" alt="Dashboard with opacity" width="512" />
+      <img src="screenshots/HalkyLauncher_home_mita.gif" alt="Mita catpack" width="512" />
+      <img src="screenshots/HalkyLauncher_home_maxwell.gif" alt="Maxwell catpack" width="512" />
+      <img src="screenshots/HalkyLauncher_settings_accounts_screenshot.png" alt="Accounts settings" width="512" />
+      <img src="screenshots/HalkyLauncher_instance_add_screenshot.png" alt="Add instance" width="512" />
+      <img src="screenshots/HalkyLauncher_instance_settings_screenshot.png" alt="Instance settings" width="512" />
+      <img src="screenshots/HalkyLauncher_settings_theme_screenshot.png" alt="Theme settings" width="512" />
     </div>
     -->
   </div>
@@ -68,7 +68,7 @@ A Freesm Launcher fork that features an **excellent UI and rich customizations**
 | **Authlib-injector Support** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌² | ❌² | ❌² |
 | **Animated Cat Packs & Cropping** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Screenshots to Clipboard** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Base Fork** | Freesm Launcher | PrismLauncher | FjordLauncher | ❌ | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC |
+| **Base Fork** | Halky Launcher | PrismLauncher | FjordLauncher | ❌ | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC |
 
 > ¹ Does not use official Ely.by authlib patches.
 > 

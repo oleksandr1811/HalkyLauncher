@@ -18,7 +18,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- *      Copyright 2024-2024 Freesm Launcher Contributors
+ *      Copyright 2024-2024 Halky Launcher Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
@@ -32,21 +32,21 @@
  *      See the License for the specific language governing permissions and
  *      limitations under the License.
  */
-#include "FreesmLightTheme.h"
+#include "HalkyLightTheme.h"
 
 #include <QObject>
 
-QString FreesmLightTheme::id()
+QString HalkyLightTheme::id()
 {
-    return "freesm-light";
+    return "Halky-light";
 }
 
-QString FreesmLightTheme::name()
+QString HalkyLightTheme::name()
 {
-    return QObject::tr("Freesm Light");
+    return QObject::tr("Halky Light");
 }
 
-QPalette FreesmLightTheme::colorScheme()
+QPalette HalkyLightTheme::colorScheme()
 {
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(250, 244, 237));
@@ -66,22 +66,22 @@ QPalette FreesmLightTheme::colorScheme()
     return fadeInactive(darkPalette, fadeAmount(), fadeColor());
 }
 
-double FreesmLightTheme::fadeAmount()
+double HalkyLightTheme::fadeAmount()
 {
     return 0.5;
 }
 
-QColor FreesmLightTheme::fadeColor()
+QColor HalkyLightTheme::fadeColor()
 {
     return QColor(255, 255, 255);
 }
 
-bool FreesmLightTheme::hasStyleSheet()
+bool HalkyLightTheme::hasStyleSheet()
 {
     return true;
 }
 
-QString FreesmLightTheme::appStyleSheet()
+QString HalkyLightTheme::appStyleSheet()
 {
     return "QMainWindow, QDockWidget {background-color: #ffffff;}QWidget {border-color: rgba(255, 255, 255, 8);font-family: \"Segoe UI "
            "Variable Text Semibold\", serif;border-radius: 4px;}QObject, QObject::separator, QObject::handle, QObject::tab-bar, "
@@ -285,7 +285,7 @@ QString FreesmLightTheme::appStyleSheet()
            "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #ffffff;color: #000000;padding: 2px;border-radius: "
            "3px;background: #ffffff;}QListView {padding: 5px;}";
 }
-QString FreesmLightTheme::tooltip()
+QString HalkyLightTheme::tooltip()
 {
     return "";
 }

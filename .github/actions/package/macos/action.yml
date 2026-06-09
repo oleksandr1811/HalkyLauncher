@@ -1,5 +1,5 @@
 name: Package for macOS
-description: Create a macOS package for Freesm Launcher
+description: Create a macOS package for Halky Launcher
 
 inputs:
   version:
@@ -62,7 +62,7 @@ runs:
         cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build-type }}
 
         cd ${{ env.INSTALL_DIR }}
-        chmod +x "FreesmLauncher.app/Contents/MacOS/freesmlauncher"
+        chmod +x "HalkyLauncher.app/Contents/MacOS/HalkyLauncher"
 
         if [ -n '${{ inputs.apple-codesign-id }}' ]; then
           APPLE_CODESIGN_ID='${{ inputs.apple-codesign-id }}'
@@ -72,8 +72,8 @@ runs:
           ENTITLEMENTS_FILE='../program_info/AdhocSignedApp.entitlements'
         fi
 
-        sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "$ENTITLEMENTS_FILE" --options runtime "FreesmLauncher.app/Contents/MacOS/freesmlauncher"
-        mv "FreesmLauncher.app" "Freesm Launcher.app"
+        sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "$ENTITLEMENTS_FILE" --options runtime "HalkyLauncher.app/Contents/MacOS/HalkyLauncher"
+        mv "HalkyLauncher.app" "Halky Launcher.app"
 
     - name: Notarize
       shell: bash
@@ -83,18 +83,18 @@ runs:
         cd ${{ env.INSTALL_DIR }}
 
         if [ -n '${{ inputs.apple-notarize-password }}' ]; then
-          ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../FreesmLauncher.zip
-          xcrun notarytool submit ../FreesmLauncher.zip \
+          ditto -c -k --sequesterRsrc --keepParent "Halky Launcher.app" ../HalkyLauncher.zip
+          xcrun notarytool submit ../HalkyLauncher.zip \
             --wait --progress \
             --apple-id '${{ inputs.apple-notarize-apple-id }}' \
             --team-id '${{ inputs.apple-notarize-team-id }}' \
             --password '${{ inputs.apple-notarize-password }}'
 
-          xcrun stapler staple "Freesm Launcher.app"
+          xcrun stapler staple "Halky Launcher.app"
         else
           echo ":warning: Skipping notarization as credentials are not present." >> $GITHUB_STEP_SUMMARY
         fi
-        ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../FreesmLauncher.zip
+        ditto -c -k --sequesterRsrc --keepParent "Halky Launcher.app" ../HalkyLauncher.zip
 
     - name: Create DMG
       shell: bash
@@ -104,23 +104,23 @@ runs:
         cd ${{ env.INSTALL_DIR }}
 
         mkdir -p src
-        cp -R "Freesm Launcher.app" src/
+        cp -R "Halky Launcher.app" src/
 
         ln -s /Applications src/
 
         hdiutil create \
-            -volname "Freesm Launcher ${{ inputs.version }}" \
+            -volname "Halky Launcher ${{ inputs.version }}" \
             -srcfolder src \
             -ov -format ULMO \
-            "../FreesmLauncher.dmg"
+            "../HalkyLauncher.dmg"
 
     - name: Make Sparkle signature
       shell: bash
       run: |
         if [ '${{ inputs.sparkle-ed25519-key }}' != '' ]; then
           echo '${{ inputs.sparkle-ed25519-key }}' > ed25519-priv.pem
-          signature_zip=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/FreesmLauncher.zip -inkey ed25519-priv.pem | openssl base64 | tr -d \\n)
-          signature_dmg=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/FreesmLauncher.dmg -inkey ed25519-priv.pem | openssl base64 | tr -d \\n) 
+          signature_zip=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/HalkyLauncher.zip -inkey ed25519-priv.pem | openssl base64 | tr -d \\n)
+          signature_dmg=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/HalkyLauncher.dmg -inkey ed25519-priv.pem | openssl base64 | tr -d \\n) 
           rm ed25519-priv.pem
           cat >> $GITHUB_STEP_SUMMARY << EOF
         ### Artifact Information :information_source:
@@ -137,11 +137,11 @@ runs:
     - name: Upload binary tarball
       uses: actions/upload-artifact@v7
       with:
-        name: FreesmLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}
-        path: FreesmLauncher.zip
+        name: HalkyLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}
+        path: HalkyLauncher.zip
 
     - name: Upload disk image
       uses: actions/upload-artifact@v7
       with:
-        name: FreesmLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}.dmg
-        path: FreesmLauncher.dmg
+        name: HalkyLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}.dmg
+        path: HalkyLauncher.dmg
