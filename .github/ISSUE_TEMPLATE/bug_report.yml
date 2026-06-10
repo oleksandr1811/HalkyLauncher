@@ -25,15 +25,15 @@ body:
     - Other
 - type: textarea
   attributes:
-    label: Version of Freesm Launcher
-    description: The version of Freesm Launcher used in the bug report.
-    placeholder: Freesm Launcher 2.2.0
+    label: Version of Halky Launcher
+    description: The version of Halky Launcher used in the bug report.
+    placeholder: Halky Launcher 1.0.0
   validations:
     required: true
 - type: textarea
   attributes:
     label: Version of Qt
-    description: The version of Qt used in the bug report. You can find it in Help -> About Freesm Launcher -> About Qt.
+    description: The version of Qt used in the bug report. You can find it in Help -> About Halky Launcher -> About Qt.
     placeholder: Qt 6.3.0
   validations:
     required: true

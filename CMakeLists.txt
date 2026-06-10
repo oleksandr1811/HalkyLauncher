@@ -171,7 +171,7 @@ endif()
 ##################################### Set Application options #####################################
 
 ######## Set URLs ########
-set(Launcher_NEWS_RSS_URL "https://HalkyLauncher.org/feed" CACHE STRING "URL to fetch Halky Launcher's news RSS feed from.")
+set(Launcher_NEWS_RSS_URL "https://halkylauncher.alex1811.ovh/feed.xml" CACHE STRING "URL to fetch Halky Launcher's news RSS feed from.")
 set(Launcher_NEWS_OPEN_URL "https://github.com/Oleksandr1811/HalkyLauncher/releases" CACHE STRING "URL that gets opened when the user clicks 'More News'")
 set(Launcher_WIKI_URL "https://prismlauncher.org/wiki/" CACHE STRING "URL that gets opened when the user clicks 'Launcher Help'")
 set(Launcher_HELP_URL "https://prismlauncher.org/wiki/help-pages/%1" CACHE STRING "URL (with arg %1 to be substituted with page-id) that gets opened when the user requests help in a dialog window")
@@ -198,7 +198,7 @@ set(Launcher_UPDATER_GITHUB_REPO "https://github.com/Oleksandr1811/HalkyLauncher
 set(Launcher_BUILD_ARTIFACT "" CACHE STRING "Artifact name to help the updater identify valid artifacts.")
 
 # The metadata server
-set(Launcher_META_URL "https://meta.HalkyLauncher.org/v1/" CACHE STRING "URL to fetch Launcher's meta files from.")
+set(Launcher_META_URL "https://meta.freesmlauncher.org/v1/" CACHE STRING "URL to fetch Launcher's meta files from.")
 
 # Imgur API Client ID
 set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3" CACHE STRING "Client ID you can get from Imgur when you register an application")
@@ -383,7 +383,7 @@ if(UNIX AND APPLE)
     set(MACOSX_BUNDLE_ICON_FILE ${Launcher_Name}.icns)
     set(MACOSX_BUNDLE_COPYRIGHT "${Launcher_Copyright_Mac}")
     set(MACOSX_SPARKLE_UPDATE_PUBLIC_KEY "v55ZWWD6QlPoXGV6VLzOTZxZUggWeE51X8cRQyQh6vA=" CACHE STRING "Public key for Sparkle update feed")
-    set(MACOSX_SPARKLE_UPDATE_FEED_URL "https://HalkyLauncher.org/feed/appcast" CACHE STRING "URL for Sparkle update feed")
+    set(MACOSX_SPARKLE_UPDATE_FEED_URL "https://halkylauncher.alex1811.ovh/feed/appcast" CACHE STRING "URL for Sparkle update feed")
 
     set(MACOSX_SPARKLE_DOWNLOAD_URL "https://github.com/sparkle-project/Sparkle/releases/download/2.8.0/Sparkle-2.8.0.tar.xz" CACHE STRING "URL to Sparkle release archive")
     set(MACOSX_SPARKLE_SHA256 "fd5681ee92bf238aaac2d08214ceaf0cc8976e452d7f882d80bac1e61581f3b1" CACHE STRING "SHA256 checksum for Sparkle release archive")
