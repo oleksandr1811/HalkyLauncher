@@ -68,7 +68,7 @@ A Halky Launcher fork that features an **excellent UI and rich customizations**,
 | **Authlib-injector Support** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌² | ❌² | ❌² |
 | **Animated Cat Packs & Cropping** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Screenshots to Clipboard** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Base Fork** | Halky Launcher | PrismLauncher | FjordLauncher | ❌ | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC |
+| **Base Fork** | Freesm Launcher | PrismLauncher | FjordLauncher | ❌ | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC |
 
 > ¹ Does not use official Ely.by authlib patches.
 > 
