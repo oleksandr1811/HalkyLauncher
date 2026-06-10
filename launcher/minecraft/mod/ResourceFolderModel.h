@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QSet>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 #include <QTreeView>
 
 #include "Resource.h"
@@ -256,6 +257,7 @@ class ResourceFolderModel : public QAbstractListModel {
 
     Task::Ptr m_current_update_task = nullptr;
     bool m_scheduled_update = false;
+    QTimer m_update_debounce_timer;
 
     QList<Resource::Ptr> m_resources;
 

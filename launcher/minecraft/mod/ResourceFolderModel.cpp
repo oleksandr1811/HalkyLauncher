@@ -37,6 +37,9 @@ ResourceFolderModel::ResourceFolderModel(const QDir& dir, BaseInstance* instance
     m_dir.setFilter(QDir::Readable | QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
     m_dir.setSorting(QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
 
+    m_update_debounce_timer.setSingleShot(true);
+    m_update_debounce_timer.setInterval(200);
+    connect(&m_update_debounce_timer, &QTimer::timeout, this, &ResourceFolderModel::update);
     connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &ResourceFolderModel::directoryChanged);
     connect(&m_resourceResolver, &ConcurrentTask::finished, this, [this] {
         m_resourceResolver.clear();
@@ -433,7 +436,7 @@ bool ResourceFolderModel::hasPendingParseTasks() const
 
 void ResourceFolderModel::directoryChanged(QString path)
 {
-    update();
+    m_update_debounce_timer.start();
 }
 
 Qt::DropActions ResourceFolderModel::supportedDropActions() const

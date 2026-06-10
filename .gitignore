@@ -1,3 +1,4 @@
+CLAUDE.md
 Thumbs.db
 *.kdev4
 .user
@@ -62,3 +63,8 @@ flatbuild
 
 # Snap
 *.snap
+
+halkyi8n
+
+/.*
+!/.github
