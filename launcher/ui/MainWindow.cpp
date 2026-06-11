@@ -55,12 +55,16 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
+#include <QDesktopServices>
 #include <QFileDialog>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -108,9 +112,14 @@
 #include "ui/instanceview/InstanceDelegate.h"
 #include "ui/instanceview/InstanceProxyModel.h"
 #include "ui/instanceview/InstanceView.h"
+#include "ui/pages/global/HomePage.h"
 #include "ui/themes/ITheme.h"
 #include "ui/themes/ThemeManager.h"
+#include "ui/widgets/BrowsePage.h"
+#include "ui/widgets/HalkyNavBar.h"
 #include "ui/widgets/LabeledToolButton.h"
+#include "ui/widgets/NewsPanel.h"
+#include "ui/widgets/OnboardingOverlay.h"
 
 #include "minecraft/PackProfile.h"
 #include "minecraft/VersionFile.h"
@@ -331,7 +340,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         view->setSourceOfGroupCollapseStatus(
             [](const QString& groupName) -> bool { return APPLICATION->instances()->isGroupCollapsed(groupName); });
         connect(view, &InstanceView::groupStateChanged, APPLICATION->instances(), &InstanceList::on_GroupStateChanged);
-        ui->horizontalLayout->addWidget(view);
+        // view will be added to the library page in buildNewLayout()
     }
     // The cat background
     {
@@ -428,6 +437,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     setSelectedInstanceById(APPLICATION->settings()->get("SelectedInstance").toString());
 
+    // Build the new Modrinth-inspired layout on top of the existing QActions
+    buildNewLayout();
+
     // removing this looks stupid
     view->setFocus();
 
@@ -456,6 +468,9 @@ void MainWindow::retranslateUi()
 
     ui->retranslateUi(this);
 
+    if (m_navBar)
+        m_navBar->retranslate();
+
     MinecraftAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
     if (defaultAccount) {
         auto profileLabel = profileInUseFilter(defaultAccount->displayName(), defaultAccount->isInUse());
@@ -478,6 +493,255 @@ void MainWindow::retranslateUi()
 }
 
 MainWindow::~MainWindow() {}
+
+// ─── New layout implementation ──────────────────────────────────────────────
+
+void MainWindow::buildNewLayout()
+{
+    // Hide the old toolbars — all QActions remain functional but invisible
+    menuBar()->hide();
+    ui->mainToolBar->hide();
+    ui->newsToolBar->hide();
+    ui->instanceToolBar->hide();
+
+    // ── Sidebar (left) ──────────────────────────────────────────────────────
+    m_navBar = new HalkyNavBar(ui->centralWidget);
+
+    connect(m_navBar, &HalkyNavBar::pageSelected, this, &MainWindow::navigateToPage);
+    connect(m_navBar, &HalkyNavBar::addInstanceClicked, this, &MainWindow::on_actionAddInstance_triggered);
+    connect(m_navBar, &HalkyNavBar::settingsClicked, this, &MainWindow::on_actionSettings_triggered);
+    connect(m_navBar, &HalkyNavBar::accountsClicked, this, &MainWindow::on_actionManageAccounts_triggered);
+    connect(m_navBar, &HalkyNavBar::helpClicked, this, [this]() {
+        auto* menu = ui->actionHelpButton->menu();
+        if (menu)
+            menu->popup(QCursor::pos());
+    });
+    connect(m_navBar, &HalkyNavBar::foldersClicked, this, [this]() {
+        auto* menu = ui->actionFoldersButton->menu();
+        if (menu)
+            menu->popup(QCursor::pos());
+    });
+
+    // ── Main stacked widget (center) ────────────────────────────────────────
+    m_mainStack = new QStackedWidget(ui->centralWidget);
+    m_mainStack->setObjectName(QStringLiteral("mainStack"));
+
+    // Page 0: Home
+    m_homePage = new HomePage(m_mainStack);
+    connect(m_homePage, &HomePage::addInstanceRequested, this, &MainWindow::on_actionAddInstance_triggered);
+    connect(m_homePage, &HomePage::viewLibraryRequested, this, [this]() { navigateToPage(HalkyNavBar::LibraryPage); });
+    connect(m_homePage, &HomePage::launchInstance, this, [this](const QString& id) {
+        setSelectedInstanceById(id);
+        on_actionLaunchInstance_triggered();
+    });
+    connect(m_homePage, &HomePage::editInstance, this, [this](const QString& id) {
+        setSelectedInstanceById(id);
+        on_actionEditInstance_triggered();
+    });
+    m_mainStack->addWidget(m_homePage);  // index 0
+
+    // Page 1: Library (instance grid)
+    m_libraryPage = new QWidget(m_mainStack);
+    m_libraryPage->setObjectName(QStringLiteral("libraryPage"));
+    {
+        auto* libLayout = new QVBoxLayout(m_libraryPage);
+        libLayout->setContentsMargins(0, 0, 0, 0);
+        libLayout->setSpacing(0);
+
+        // Library header
+        auto* libHeader = new QWidget(m_libraryPage);
+        libHeader->setObjectName(QStringLiteral("libraryHeader"));
+        libHeader->setFixedHeight(56);
+        auto* libHeaderLayout = new QHBoxLayout(libHeader);
+        libHeaderLayout->setContentsMargins(20, 8, 16, 8);
+        libHeaderLayout->setSpacing(12);
+
+        auto* libTitle = new QLabel(tr("Library"), libHeader);
+        libTitle->setObjectName(QStringLiteral("libraryTitle"));
+        libHeaderLayout->addWidget(libTitle);
+        libHeaderLayout->addStretch(1);
+
+        auto* addInstBtn = new QPushButton(tr("+ Add Instance"), libHeader);
+        addInstBtn->setObjectName(QStringLiteral("libraryAddBtn"));
+        addInstBtn->setFixedHeight(36);
+        connect(addInstBtn, &QPushButton::clicked, this, &MainWindow::on_actionAddInstance_triggered);
+        libHeaderLayout->addWidget(addInstBtn);
+
+        libLayout->addWidget(libHeader);
+
+        // Separator
+        auto* sep = new QFrame(m_libraryPage);
+        sep->setFrameShape(QFrame::HLine);
+        sep->setObjectName(QStringLiteral("libraryHeaderSep"));
+        libLayout->addWidget(sep);
+
+        // Instance view (transferred from horizontal layout)
+        libLayout->addWidget(view, 1);
+
+        // Instance action bar (shows when instance is selected)
+        m_instanceActionBar = new QWidget(m_libraryPage);
+        m_instanceActionBar->setObjectName(QStringLiteral("instanceActionBar"));
+        m_instanceActionBar->setFixedHeight(60);
+        m_instanceActionBar->hide();
+        auto* actionBarLayout = new QHBoxLayout(m_instanceActionBar);
+        actionBarLayout->setContentsMargins(20, 8, 16, 8);
+        actionBarLayout->setSpacing(10);
+
+        // Instance icon + name in the action bar
+        auto* instIconLbl = new QLabel(m_instanceActionBar);
+        instIconLbl->setObjectName(QStringLiteral("actionBarInstIcon"));
+        instIconLbl->setFixedSize(32, 32);
+        actionBarLayout->addWidget(instIconLbl);
+
+        auto* instNameLbl = new QLabel(m_instanceActionBar);
+        instNameLbl->setObjectName(QStringLiteral("actionBarInstName"));
+        actionBarLayout->addWidget(instNameLbl, 1);
+
+        // Action buttons
+        auto makebar = [&](const QString& text, const QString& objName, QAction* action) {
+            auto* btn = new QPushButton(text, m_instanceActionBar);
+            btn->setObjectName(objName);
+            btn->setFixedHeight(36);
+            connect(btn, &QPushButton::clicked, action, &QAction::trigger);
+            actionBarLayout->addWidget(btn);
+            return btn;
+        };
+        makebar(tr("Play"), QStringLiteral("actionBarPlayBtn"), ui->actionLaunchInstance);
+        makebar(tr("Edit"), QStringLiteral("actionBarEditBtn"), ui->actionEditInstance);
+        makebar(tr("Delete"), QStringLiteral("actionBarDeleteBtn"), ui->actionDeleteInstance);
+
+        // More actions button
+        auto* moreBtn = new QToolButton(m_instanceActionBar);
+        moreBtn->setObjectName(QStringLiteral("actionBarMoreBtn"));
+        moreBtn->setText(tr("More"));
+        moreBtn->setPopupMode(QToolButton::InstantPopup);
+        moreBtn->setFixedHeight(36);
+
+        auto* moreMenu = new QMenu(moreBtn);
+        moreMenu->addAction(ui->actionCopyInstance);
+        moreMenu->addAction(ui->actionExportInstance);
+        moreMenu->addAction(ui->actionCreateInstanceShortcut);
+        moreMenu->addSeparator();
+        moreMenu->addAction(ui->actionViewSelectedInstFolder);
+        moreMenu->addSeparator();
+        moreMenu->addAction(ui->actionChangeInstGroup);
+        moreBtn->setMenu(moreMenu);
+        actionBarLayout->addWidget(moreBtn);
+
+        libLayout->addWidget(m_instanceActionBar);
+    }
+    m_mainStack->addWidget(m_libraryPage);  // index 1
+
+    // Pages 2-5: Browse portals
+    auto addBrowsePage = [&](BrowseMode mode) {
+        auto* page = new BrowsePage(mode, m_mainStack);
+        connect(page, &BrowsePage::openBrowserRequested, this,
+                [this](BrowseMode m, const QString& q, const QString& instId) {
+                    openBrowserPage(static_cast<int>(m), q, instId);
+                });
+        m_mainStack->addWidget(page);
+    };
+    addBrowsePage(BrowseMode::Modpacks);      // index 2
+    addBrowsePage(BrowseMode::Mods);          // index 3
+    addBrowsePage(BrowseMode::ResourcePacks); // index 4
+    addBrowsePage(BrowseMode::ShaderPacks);   // index 5
+
+    // ── News panel (right) ──────────────────────────────────────────────────
+    m_newsPanel = new NewsPanel(ui->centralWidget);
+    connect(m_newsPanel, &NewsPanel::newsItemClicked, this,
+            [](const QString& url) { QDesktopServices::openUrl(QUrl(url)); });
+    connect(m_newsPanel, &NewsPanel::moreNewsClicked, this, &MainWindow::on_actionMoreNews_triggered);
+
+    // ── Wire into centralWidget's layout ────────────────────────────────────
+    auto* hbox = qobject_cast<QHBoxLayout*>(ui->centralWidget->layout());
+    hbox->addWidget(m_navBar);
+    hbox->addWidget(m_mainStack, 1);
+    hbox->addWidget(m_newsPanel);
+
+    // Navigate to home by default
+    m_navBar->setCurrentPage(HalkyNavBar::HomePage);
+    m_mainStack->setCurrentIndex(0);
+
+    // Refresh home page
+    m_homePage->refresh();
+
+    // Set up onboarding (shown only on first launch after setup wizard)
+    setupOnboarding();
+}
+
+void MainWindow::navigateToPage(int page)
+{
+    m_navBar->setCurrentPage(static_cast<HalkyNavBar::Page>(page));
+    m_mainStack->setCurrentIndex(page);
+
+    // Refresh home page data when navigating to it
+    if (page == HalkyNavBar::HomePage && m_homePage)
+        m_homePage->refresh();
+}
+
+void MainWindow::openBrowserPage(int mode, const QString& searchTerm, const QString& instanceId)
+{
+    switch (static_cast<BrowseMode>(mode)) {
+        case BrowseMode::Modpacks: {
+            addInstance(QString(), {});
+            break;
+        }
+        case BrowseMode::Mods:
+        case BrowseMode::ResourcePacks:
+        case BrowseMode::ShaderPacks: {
+            if (!instanceId.isEmpty())
+                setSelectedInstanceById(instanceId);
+            if (m_selectedInstance) {
+                on_actionEditInstance_triggered();
+            }
+            break;
+        }
+    }
+}
+
+void MainWindow::setupOnboarding()
+{
+    // Use a dedicated setting registered on-demand
+    APPLICATION->settings()->getOrRegisterSetting(QStringLiteral("OnboardingShown"), false);
+    if (APPLICATION->settings()->get(QStringLiteral("OnboardingShown")).toBool())
+        return;
+
+    m_onboarding = new OnboardingOverlay(ui->centralWidget);
+
+    QList<OnboardingOverlay::Step> steps;
+
+    steps.append({ tr("Navigation Sidebar"),
+                   tr("Use the sidebar on the left to switch between your Library, browse Modpacks, "
+                      "Mods, Resource Packs and Shaders. Click the ☰ button at the top to expand labels."),
+                   m_navBar ? m_navBar->geometry() : QRect() });
+
+    steps.append({ tr("Add Instance"),
+                   tr("Click the + button in the sidebar or use the '+ Add Instance' button in the Library "
+                      "to create a new Minecraft instance."),
+                   QRect() });
+
+    steps.append({ tr("Your Library"),
+                   tr("The Library shows all your Minecraft instances. Double-click one to launch it, "
+                      "or select it for more options."),
+                   m_libraryPage ? m_libraryPage->geometry() : QRect() });
+
+    steps.append({ tr("News"),
+                   tr("The News panel on the right shows the latest Halky Launcher updates and announcements."),
+                   m_newsPanel ? m_newsPanel->geometry() : QRect() });
+
+    m_onboarding->setSteps(steps);
+    connect(m_onboarding, &OnboardingOverlay::finished, this, [this]() {
+        APPLICATION->settings()->set("OnboardingShown", true);
+        m_onboarding->deleteLater();
+        m_onboarding = nullptr;
+    });
+
+    m_onboarding->resize(ui->centralWidget->size());
+    m_onboarding->show();
+    m_onboarding->raise();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 QMenu* MainWindow::createPopupMenu()
 {
@@ -804,6 +1068,8 @@ void MainWindow::updateNewsLabel()
         newsLabel->setText(tr("Loading news..."));
         newsLabel->setEnabled(false);
         ui->actionMoreNews->setVisible(false);
+        if (m_newsPanel)
+            m_newsPanel->setLoading(true);
     } else {
         QList<NewsEntryPtr> entries = m_newsChecker->getNewsEntries();
         if (entries.length() > 0) {
@@ -815,6 +1081,8 @@ void MainWindow::updateNewsLabel()
             newsLabel->setEnabled(false);
             ui->actionMoreNews->setVisible(false);
         }
+        if (m_newsPanel)
+            m_newsPanel->updateNews(entries);
     }
 }
 

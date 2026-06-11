@@ -884,6 +884,18 @@ SET(LAUNCHER_SOURCES
     ui/ToolTipFilter.h
     ui/ToolTipFilter.cpp
 
+    # GUI - redesign: new layout widgets
+    ui/widgets/HalkyNavBar.h
+    ui/widgets/HalkyNavBar.cpp
+    ui/widgets/NewsPanel.h
+    ui/widgets/NewsPanel.cpp
+    ui/widgets/BrowsePage.h
+    ui/widgets/BrowsePage.cpp
+    ui/widgets/OnboardingOverlay.h
+    ui/widgets/OnboardingOverlay.cpp
+    ui/pages/global/HomePage.h
+    ui/pages/global/HomePage.cpp
+
     # FIXME: maybe find a better home for this.
     FileIgnoreProxy.cpp
     FileIgnoreProxy.h

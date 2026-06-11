@@ -44,6 +44,7 @@
 
 #include <QMainWindow>
 #include <QProcess>
+#include <QStackedWidget>
 #include <QTimer>
 
 #include "BaseInstance.h"
@@ -61,6 +62,10 @@ class InstanceView;
 class KonamiCode;
 class InstanceTask;
 class LabeledToolButton;
+class HalkyNavBar;
+class NewsPanel;
+class HomePage;
+class OnboardingOverlay;
 
 namespace Ui {
 class MainWindow;
@@ -230,6 +235,11 @@ class MainWindow : public QMainWindow {
     void runModalTask(Task* task);
     void instanceFromInstanceTask(InstanceTask* task);
 
+    void buildNewLayout();
+    void setupOnboarding();
+    void navigateToPage(int page);
+    void openBrowserPage(int mode, const QString& searchTerm, const QString& instanceId);
+
    private:
     Ui::MainWindow* ui;
     // these are managed by Qt's memory management model!
@@ -252,4 +262,13 @@ class MainWindow : public QMainWindow {
 
     // managed by the application object
     Task* m_versionLoadTask = nullptr;
+
+    // New redesign widgets
+    HalkyNavBar* m_navBar = nullptr;
+    QStackedWidget* m_mainStack = nullptr;
+    NewsPanel* m_newsPanel = nullptr;
+    HomePage* m_homePage = nullptr;
+    QWidget* m_libraryPage = nullptr;
+    QWidget* m_instanceActionBar = nullptr;
+    OnboardingOverlay* m_onboarding = nullptr;
 };
