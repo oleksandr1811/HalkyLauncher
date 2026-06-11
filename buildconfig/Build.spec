@@ -32,7 +32,7 @@
 
 %global _name   HalkyLauncher
 Name:           HalkyLauncher
-Version:        Maple-2.0.0
+Version:        First-1.0.0
 Release:        0
 Summary:        An open source launcher for Minecraft
 License:        GPL-3.0-only
