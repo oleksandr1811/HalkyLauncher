@@ -239,6 +239,7 @@ class MainWindow : public QMainWindow {
     void setupOnboarding();
     void navigateToPage(int page);
     void openBrowserPage(int mode, const QString& platformId, const QString& searchTerm, const QString& instanceId);
+    void updateAllMods();
 
    private:
     Ui::MainWindow* ui;

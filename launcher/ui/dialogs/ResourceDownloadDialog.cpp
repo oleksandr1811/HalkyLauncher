@@ -242,12 +242,18 @@ void ResourceDownloadDialog::removeResource(const QString& pack_name)
 
 void ResourceDownloadDialog::setButtonStatus()
 {
-    auto selected = false;
+    int totalSelected = 0;
     for (auto page : m_container->getPages()) {
         auto res = static_cast<ResourcePage*>(page);
-        selected = selected || res->hasSelectedPacks();
+        totalSelected += res->selectedPacks().size();
     }
-    m_buttons.button(QDialogButtonBox::Ok)->setEnabled(selected);
+
+    auto* okBtn = m_buttons.button(QDialogButtonBox::Ok);
+    okBtn->setEnabled(totalSelected > 0);
+    if (totalSelected > 0)
+        okBtn->setText(tr("Review and install (%1)").arg(totalSelected));
+    else
+        okBtn->setText(tr("Review and confirm"));
 }
 
 const QList<ResourceDownloadDialog::DownloadTaskPtr> ResourceDownloadDialog::getTasks()

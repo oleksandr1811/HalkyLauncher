@@ -101,6 +101,10 @@
 #include "ui/dialogs/AboutDialog.h"
 #include "ui/dialogs/CopyInstanceDialog.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
+#include "ui/dialogs/ResourceUpdateDialog.h"
+#include "tasks/ConcurrentTask.h"
+#include <QEventLoop>
+#include <QTimer>
 #include "ui/dialogs/CreateShortcutDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ExportInstanceDialog.h"
@@ -622,6 +626,15 @@ void MainWindow::buildNewLayout()
         moreBtn->setFixedHeight(36);
 
         auto* moreMenu = new QMenu(moreBtn);
+
+        // Batch update all mods in this instance
+        auto* actionUpdateMods = new QAction(QIcon::fromTheme(QStringLiteral("checkupdate")),
+                                              tr("Update All Mods"), moreMenu);
+        actionUpdateMods->setToolTip(tr("Check for and apply updates to all mods in this instance"));
+        connect(actionUpdateMods, &QAction::triggered, this, &MainWindow::updateAllMods);
+        moreMenu->addAction(actionUpdateMods);
+        moreMenu->addSeparator();
+
         moreMenu->addAction(ui->actionCopyInstance);
         moreMenu->addAction(ui->actionExportInstance);
         moreMenu->addAction(ui->actionCreateInstanceShortcut);
@@ -751,6 +764,86 @@ void MainWindow::openBrowserPage(int mode, const QString& platformId, const QStr
             break;
         }
     }
+}
+
+void MainWindow::updateAllMods()
+{
+    auto* inst = dynamic_cast<MinecraftInstance*>(m_selectedInstance);
+    if (!inst)
+        return;
+
+    if (inst->typeName() != QLatin1String("Minecraft")) {
+        CustomMessageBox::selectable(this, tr("Not a Minecraft instance"),
+                                     tr("Mod updates are only supported for Minecraft instances."),
+                                     QMessageBox::Warning)
+            ->exec();
+        return;
+    }
+
+    auto* profile = inst->getPackProfile();
+    if (profile->getModLoadersList().isEmpty()) {
+        CustomMessageBox::selectable(this, tr("No mod loader"),
+                                     tr("This instance has no mod loader. Install Fabric, Forge, Quilt or NeoForge first."),
+                                     QMessageBox::Warning)
+            ->exec();
+        return;
+    }
+
+    auto* model = inst->loaderModList();
+
+    // Ensure the model is populated before proceeding
+    if (model->rowCount() == 0) {
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        connect(model, &ResourceFolderModel::updateFinished, &loop, &QEventLoop::quit);
+        connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timeout.start(15000);
+        model->update();
+        loop.exec();
+    }
+
+    auto mods_list = model->allResources();
+    if (mods_list.isEmpty()) {
+        CustomMessageBox::selectable(this, tr("No mods found"),
+                                     tr("This instance has no mods to update."),
+                                     QMessageBox::Information)
+            ->exec();
+        return;
+    }
+
+    auto loaders = profile->getModLoadersList();
+    ResourceUpdateDialog dlg(this, inst, model, mods_list, false, loaders);
+    dlg.checkCandidates();
+
+    if (dlg.aborted())
+        return;
+
+    if (dlg.noUpdates()) {
+        CustomMessageBox::selectable(this, tr("All up to date!"),
+                                     tr("All mods in this instance are already up to date."),
+                                     QMessageBox::Information)
+            ->exec();
+        return;
+    }
+
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    auto tasks = dlg.getTasks();
+    if (tasks.isEmpty())
+        return;
+
+    auto* concurrent = new ConcurrentTask(this, QStringLiteral("UpdateMods"),
+                                          APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+    for (auto& task : tasks)
+        concurrent->addTask(task);
+
+    ProgressDialog progressDlg(this);
+    progressDlg.setSkipButton(true, tr("Abort"));
+    progressDlg.execWithTask(concurrent);
+
+    model->update();
 }
 
 void MainWindow::setupOnboarding()
