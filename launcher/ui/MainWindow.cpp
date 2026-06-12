@@ -986,9 +986,9 @@ void MainWindow::showInstanceContextMenu(const QPoint& pos)
         auto* actionCreate = new QAction(QIcon::fromTheme(QStringLiteral("new")), tr("Create Instance"), this);
         actionCreate->setToolTip(ui->actionAddInstance->toolTip());
         if (!group.isNull()) {
-            QVariantMap data;
-            data["group"] = group;
-            actionCreate->setData(data);
+            QVariantMap actionData;
+            actionData["group"] = group;
+            actionCreate->setData(actionData);
         }
         connect(actionCreate, &QAction::triggered, this, &MainWindow::on_actionAddInstance_triggered);
         menu.addAction(actionCreate);
