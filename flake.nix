@@ -1,5 +1,5 @@
 {
-  description = "Prism Launcher fork aimed to provide a free way to play Minecraft.";
+  description = "The best minecraft launcher.";
 
   nixConfig = {
     substituters = [

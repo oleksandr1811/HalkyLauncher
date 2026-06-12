@@ -66,8 +66,7 @@ Recommends:     java-openjdk-headless
 Recommends:     xrandr
 
 %description
-A custom launcher for Minecraft that allows you to easily manage
-multiple installations of Minecraft at once. (Fork of PrismLauncher)
+Best minecraft launcher
 
 %prep
 %setup -q

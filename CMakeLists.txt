@@ -210,8 +210,8 @@ set(Launcher_DISCORD_CLIENT_ID "1378362128125263882" CACHE STRING "Discord appli
 set(Launcher_BUG_TRACKER_URL "https://github.com/Oleksandr1811/HalkyLauncher/issues" CACHE STRING "URL for the bug tracker.")
 
 # Translations Platform URL
-set(Launcher_TRANSLATIONS_URL "https://hosted.weblate.org/projects/HalkyLauncher/HalkyLauncher-launcher/" CACHE STRING "URL for the translations platform.")
-set(Launcher_TRANSLATION_FILES_URL "https://i18n.prismlauncher.org/" CACHE STRING "URL for the translations files.")
+set(Launcher_TRANSLATIONS_URL "https://github.com/oleksandr1811/halkyi8n/" CACHE STRING "URL for the translations platform.")
+set(Launcher_TRANSLATION_FILES_URL "https://halkyi8n.alex1811.ovh/" CACHE STRING "URL for the translations files.")
 
 # Telegram Space
 set(Launcher_TELEGRAM_URL "https://HalkyLauncher.org/telegram" CACHE STRING "URL to the Telegram Chat")
