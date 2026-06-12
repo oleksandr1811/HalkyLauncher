@@ -194,7 +194,7 @@ void BrowsePage::updateInstanceCombo()
     m_instanceCombo->clear();
     auto* instances = APPLICATION->instances();
     for (int i = 0; i < instances->count(); ++i) {
-        auto inst = instances->getInstanceAt(i);
+        auto inst = instances->at(i);
         if (inst)
             m_instanceCombo->addItem(inst->name(), inst->id());
     }
