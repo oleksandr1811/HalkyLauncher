@@ -2,6 +2,8 @@
 
 #include "BaseWizardPage.h"
 
+#include <QLabel>
+
 class LanguageSelectionWidget;
 
 class LanguageWizardPage : public BaseWizardPage {
@@ -21,5 +23,7 @@ class LanguageWizardPage : public BaseWizardPage {
     void retranslate() override;
 
    private:
-    LanguageSelectionWidget* mainWidget = nullptr;
+    LanguageSelectionWidget* m_langWidget = nullptr;
+    QLabel* m_headerTitle = nullptr;
+    QLabel* m_headerSubtitle = nullptr;
 };

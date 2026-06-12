@@ -33,7 +33,9 @@ class FlameAPIKeyWizardPage : public BaseWizardPage {
     void retranslate() override;
 
    private:
-    QLabel* m_titleLabel;
-    QLabel* m_descriptionLabel;
-    QPushButton* m_fetchButton;
+    QLabel* m_headerTitle = nullptr;
+    QLabel* m_headerSubtitle = nullptr;
+    QLabel* m_warnLabel = nullptr;
+    QLabel* m_descLabel = nullptr;
+    QPushButton* m_fetchButton = nullptr;
 };

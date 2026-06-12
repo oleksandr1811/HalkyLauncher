@@ -637,7 +637,78 @@ QString HalkyTheme::appStyleSheet()
            "3px;background: #181825;}QListView {padding: 5px;}"
     );
 
-    return newLayoutQss + legacyQss;
+    // These rules must come LAST to override legacyQss conflicting selectors
+    static const QString overridesQss = QStringLiteral(
+        // QMenu — override legacyQss (which had border-radius:0 and older look)
+        "QMenu {"
+        "  background-color: #1e1e2e;"
+        "  color: #cdd6f4;"
+        "  border: 1px solid #313244;"
+        "  border-radius: 10px;"
+        "  padding: 6px 4px;"
+        "  font-size: 13px;"
+        "}"
+        "QMenu::item {"
+        "  padding: 8px 20px 8px 12px;"
+        "  border-radius: 6px;"
+        "  margin: 1px 4px;"
+        "  background: transparent;"
+        "  min-width: 120px;"
+        "}"
+        "QMenu::item:selected { background-color: #313244; color: #cdd6f4; }"
+        "QMenu::item:pressed  { background-color: #45475a; }"
+        "QMenu::item:disabled { color: #45475a; background: transparent; }"
+        "QMenu::separator {"
+        "  height: 1px;"
+        "  background: #313244;"
+        "  margin: 4px 8px;"
+        "}"
+        "QMenu::icon { padding-left: 6px; width: 20px; }"
+        "QMenu::right-arrow { width: 8px; height: 8px; padding-right: 6px; }"
+
+        // ── Platform cards on browse pages ─────────────────────────────────
+        "QFrame#platformCard {"
+        "  background: #24273a;"
+        "  border: 1px solid #313244;"
+        "  border-radius: 10px;"
+        "}"
+        "QFrame#platformCard:hover {"
+        "  background: #2d3047;"
+        "  border-color: #cba6f7;"
+        "}"
+        "QLabel#platformCardName {"
+        "  color: #cdd6f4;"
+        "  font-size: 14px;"
+        "  font-weight: bold;"
+        "  background: transparent;"
+        "}"
+        "QLabel#platformCardDesc {"
+        "  color: #a6adc8;"
+        "  font-size: 11px;"
+        "  background: transparent;"
+        "}"
+        "QLabel#platformCardArrow {"
+        "  color: #6c7086;"
+        "  font-size: 18px;"
+        "  background: transparent;"
+        "}"
+        "QLabel#browsePickLabel {"
+        "  color: #a6adc8;"
+        "  font-size: 12px;"
+        "  font-weight: bold;"
+        "}"
+
+        // NavBar launcher name label
+        "#navLauncherLabel {"
+        "  color: #cba6f7;"
+        "  font-size: 13px;"
+        "  font-weight: bold;"
+        "  padding-left: 2px;"
+        "}"
+        "#navHeaderWidget { background: transparent; }"
+    );
+
+    return newLayoutQss + legacyQss + overridesQss;
 }
 QString HalkyTheme::tooltip()
 {

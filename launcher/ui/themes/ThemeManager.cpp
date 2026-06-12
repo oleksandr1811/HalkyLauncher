@@ -288,16 +288,22 @@ void ThemeManager::applyCurrentlySelectedTheme(bool initial)
 
 QString ThemeManager::getCatPack(QString catName)
 {
-    auto catIter = m_catPacks.find(!catName.isEmpty() ? catName : APPLICATION->settings()->get("BackgroundCat").toString());
+    const QString resolved = !catName.isEmpty() ? catName : APPLICATION->settings()->get("BackgroundCat").toString();
+
+    // Empty string means "None" — no cat
+    if (resolved.isEmpty())
+        return {};
+
+    auto catIter = m_catPacks.find(resolved);
     if (catIter != m_catPacks.end()) {
         auto& catPack = catIter->second;
         themeDebugLog() << "applying catpack" << catPack->id();
         return catPack->path();
     } else {
-        themeWarningLog() << "Tried to get invalid catPack:" << catName;
+        themeWarningLog() << "Tried to get invalid catPack:" << resolved;
     }
 
-    return m_catPacks.begin()->second->path();
+    return {};  // unknown pack → treat as None instead of silently showing first pack
 }
 
 QString ThemeManager::addCatPack(std::unique_ptr<CatPack> catPack)

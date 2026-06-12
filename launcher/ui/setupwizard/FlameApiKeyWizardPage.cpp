@@ -6,35 +6,82 @@
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, version 3.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <QLabel>
-#include <QPushButton>
-#include <QVBoxLayout>
+#include "FlameApiKeyWizardPage.h"
 
+#include <BuildConfig.h>
 #include "Application.h"
 #include "settings/SettingsObject.h"
 #include "ui/GuiUtil.h"
 
-#include "FlameApiKeyWizardPage.h"
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QIcon>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 FlameAPIKeyWizardPage::FlameAPIKeyWizardPage(QWidget* parent) : BaseWizardPage(parent)
 {
-    auto layout = new QVBoxLayout{ this };
-    m_titleLabel = new QLabel{ this };
-    m_descriptionLabel = new QLabel{ this };
-    m_descriptionLabel->setWordWrap(true);
-    m_fetchButton = new QPushButton{ this };
+    auto* outer = new QVBoxLayout(this);
+    outer->setContentsMargins(0, 0, 0, 0);
+    outer->setSpacing(0);
 
-    connect(m_fetchButton, &QPushButton::clicked, this, [this] {
+    // Header
+    auto* header = new QFrame(this);
+    header->setObjectName(QStringLiteral("wizardPageHeader"));
+    header->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    auto* hLayout = new QHBoxLayout(header);
+    hLayout->setContentsMargins(24, 18, 24, 18);
+    hLayout->setSpacing(16);
+    auto* iconLabel = new QLabel(header);
+    iconLabel->setFixedSize(48, 48);
+    iconLabel->setPixmap(
+        QIcon::fromTheme(QStringLiteral("download"), QIcon::fromTheme(QStringLiteral("applications-internet"))).pixmap(48, 48));
+    hLayout->addWidget(iconLabel);
+    auto* textBox = new QVBoxLayout();
+    textBox->setSpacing(4);
+    m_headerTitle = new QLabel(header);
+    m_headerTitle->setObjectName(QStringLiteral("wizardPageTitle"));
+    m_headerSubtitle = new QLabel(header);
+    m_headerSubtitle->setObjectName(QStringLiteral("wizardPageSubtitle"));
+    m_headerSubtitle->setWordWrap(true);
+    textBox->addWidget(m_headerTitle);
+    textBox->addWidget(m_headerSubtitle);
+    hLayout->addLayout(textBox, 1);
+    outer->addWidget(header);
+
+    // Content
+    auto* content = new QVBoxLayout();
+    content->setContentsMargins(24, 24, 24, 24);
+    content->setSpacing(16);
+
+    // Warning card
+    auto* warnCard = new QFrame(this);
+    warnCard->setStyleSheet(QStringLiteral(
+        "QFrame { background: #2a1f2e; border: 1px solid #f38ba8; border-radius: 8px; padding: 12px; }"));
+    auto* warnLayout = new QVBoxLayout(warnCard);
+    warnLayout->setContentsMargins(16, 12, 16, 12);
+    m_warnLabel = new QLabel(this);
+    m_warnLabel->setWordWrap(true);
+    m_warnLabel->setStyleSheet(QStringLiteral("color: #f38ba8; font-size: 12px; background: transparent; border: none;"));
+    warnLayout->addWidget(m_warnLabel);
+    content->addWidget(warnCard);
+
+    m_descLabel = new QLabel(this);
+    m_descLabel->setWordWrap(true);
+    m_descLabel->setStyleSheet(QStringLiteral("color: #a6adc8; font-size: 12px;"));
+    content->addWidget(m_descLabel);
+
+    m_fetchButton = new QPushButton(this);
+    m_fetchButton->setObjectName(QStringLiteral("flameBtn"));
+    m_fetchButton->setCursor(Qt::PointingHandCursor);
+    content->addWidget(m_fetchButton, 0, Qt::AlignLeft);
+
+    content->addStretch(1);
+    outer->addLayout(content, 1);
+
+    connect(m_fetchButton, &QPushButton::clicked, this, [this]() {
         const auto& apiKey = GuiUtil::fetchFlameKey(this);
         if (!apiKey.isEmpty()) {
             APPLICATION->settings()->set("FlameKeyOverride", apiKey);
@@ -42,13 +89,7 @@ FlameAPIKeyWizardPage::FlameAPIKeyWizardPage(QWidget* parent) : BaseWizardPage(p
         }
     });
 
-    layout->addWidget(m_titleLabel);
-    layout->addWidget(m_descriptionLabel);
-    layout->addWidget(m_fetchButton);
-
-    setLayout(layout);
-
-    FlameAPIKeyWizardPage::retranslate();
+    retranslate();
 }
 
 void FlameAPIKeyWizardPage::initializePage()
@@ -58,10 +99,20 @@ void FlameAPIKeyWizardPage::initializePage()
 
 void FlameAPIKeyWizardPage::retranslate()
 {
-    m_titleLabel->setText(
-        tr(R"(<html><head/><body><p><span style="font-size:14pt; font-weight:600;">Fetch CurseForge API key</span></p></body></html>)"));
-    m_descriptionLabel->setText(
-        tr("Using the official CurseForge app's API key may break CurseForge's terms of service but should allow Halky Launcher to "
-           "download all mods in a modpack without you needing to download any of them manually. This can be done later in the settings."));
-    m_fetchButton->setText(tr("Fetch Official Launcher's Key"));
+    setTitle(tr("CurseForge API"));
+    setSubTitle({});
+    if (m_headerTitle)
+        m_headerTitle->setText(tr("CurseForge API Key"));
+    if (m_headerSubtitle)
+        m_headerSubtitle->setText(tr("Enable full CurseForge modpack downloads."));
+    if (m_warnLabel)
+        m_warnLabel->setText(
+            tr("Warning: Using the official CurseForge app's API key may violate CurseForge's terms of service."));
+    if (m_descLabel)
+        m_descLabel->setText(
+            tr("Fetching the key allows %1 to download all mods in a modpack automatically, "
+               "without requiring manual downloads. This can also be done later in Settings.")
+                .arg(BuildConfig.LAUNCHER_DISPLAYNAME));
+    if (m_fetchButton)
+        m_fetchButton->setText(tr("Fetch Official Launcher's Key"));
 }

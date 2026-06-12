@@ -553,8 +553,11 @@ void InstanceView::setPaintCat(bool visible)
         m_cat = nullptr;
     }
     if (visible) {
-        m_cat = new CatPainter(APPLICATION->themeManager()->getCatPack(), this);
-        connect(m_cat, &CatPainter::updateFrame, this, [this] { viewport()->update(); });
+        const QString catPath = APPLICATION->themeManager()->getCatPack();
+        if (!catPath.isEmpty()) {
+            m_cat = new CatPainter(catPath, this);
+            connect(m_cat, &CatPainter::updateFrame, this, [this] { viewport()->update(); });
+        }
     }
 }
 

@@ -2,26 +2,66 @@
 /*
  *  Halky Launcher
  *  Copyright (C) 2024-2025 Halky Launcher Contributors
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, version 3.
  */
 
 #include "BrowsePage.h"
 
-#include <QComboBox>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QSizePolicy>
+#include <QScrollArea>
 #include <QVBoxLayout>
 
 #include "Application.h"
-#include "InstanceList.h"
 #include "BaseInstance.h"
+#include "InstanceList.h"
+
+// ── Platform descriptor ───────────────────────────────────────────────────────
+
+struct Platform {
+    QString id;
+    QString name;
+    QString desc;
+    QString iconName;
+};
+
+static QList<Platform> platformsForMode(BrowseMode mode)
+{
+    const bool hasFlame = APPLICATION->capabilities() & Application::SupportsFlame;
+
+    QList<Platform> list;
+    switch (mode) {
+        case BrowseMode::Modpacks:
+            list << Platform{ "modrinth", "Modrinth",   QObject::tr("Open-source, community-driven modpacks"),   "modrinth" };
+            if (hasFlame)
+                list << Platform{ "flame", "CurseForge", QObject::tr("Huge library of official CurseForge packs"), "flame" };
+            list << Platform{ "ftb",     "FTB",          QObject::tr("Feed the Beast curated packs"),             "ftb_logo" };
+            list << Platform{ "atl",     "ATLauncher",   QObject::tr("ATLauncher community packs"),               "atlauncher" };
+            list << Platform{ "technic", "Technic",      QObject::tr("Technic Platform modpacks"),                "technic" };
+            break;
+        case BrowseMode::Mods:
+            list << Platform{ "modrinth", "Modrinth",   QObject::tr("Open-source mods from the community"),      "modrinth" };
+            if (hasFlame)
+                list << Platform{ "flame", "CurseForge", QObject::tr("Official CurseForge mod library"),          "flame" };
+            break;
+        case BrowseMode::ResourcePacks:
+            list << Platform{ "modrinth", "Modrinth",   QObject::tr("Community resource packs"),                  "modrinth" };
+            if (hasFlame)
+                list << Platform{ "flame", "CurseForge", QObject::tr("CurseForge resource packs"),                "flame" };
+            break;
+        case BrowseMode::ShaderPacks:
+            list << Platform{ "modrinth", "Modrinth",   QObject::tr("Community-made shader packs"),               "modrinth" };
+            if (hasFlame)
+                list << Platform{ "flame", "CurseForge", QObject::tr("CurseForge shader packs"),                  "flame" };
+            break;
+    }
+    return list;
+}
+
+// ── BrowsePage ────────────────────────────────────────────────────────────────
 
 BrowsePage::BrowsePage(BrowseMode mode, QWidget* parent) : QWidget(parent), m_mode(mode)
 {
@@ -32,92 +72,81 @@ BrowsePage::BrowsePage(BrowseMode mode, QWidget* parent) : QWidget(parent), m_mo
 static QString modeTitle(BrowseMode mode)
 {
     switch (mode) {
-        case BrowseMode::Modpacks:     return QObject::tr("Browse Modpacks");
-        case BrowseMode::Mods:         return QObject::tr("Browse Mods");
+        case BrowseMode::Modpacks:      return QObject::tr("Browse Modpacks");
+        case BrowseMode::Mods:          return QObject::tr("Browse Mods");
         case BrowseMode::ResourcePacks: return QObject::tr("Browse Resource Packs");
-        case BrowseMode::ShaderPacks:  return QObject::tr("Browse Shader Packs");
+        case BrowseMode::ShaderPacks:   return QObject::tr("Browse Shader Packs");
     }
     return {};
 }
 
-static QString modeDescription(BrowseMode mode)
+static QString modeDesc(BrowseMode mode)
 {
     switch (mode) {
         case BrowseMode::Modpacks:
-            return QObject::tr("Search and install ready-made modpacks from Modrinth, CurseForge, FTB, ATLauncher and more.");
+            return QObject::tr("Install modpacks from Modrinth, CurseForge, FTB, ATLauncher and more.");
         case BrowseMode::Mods:
-            return QObject::tr("Search and install mods from Modrinth and CurseForge for a selected instance.");
+            return QObject::tr("Search and install mods for a selected instance.");
         case BrowseMode::ResourcePacks:
-            return QObject::tr("Search and install resource packs from Modrinth and CurseForge for a selected instance.");
+            return QObject::tr("Search and install resource packs for a selected instance.");
         case BrowseMode::ShaderPacks:
-            return QObject::tr("Search and install shader packs from Modrinth and CurseForge for a selected instance.");
+            return QObject::tr("Search and install shader packs for a selected instance.");
     }
     return {};
 }
 
-static QString modeIcon(BrowseMode mode)
+static QString modeIconName(BrowseMode mode)
 {
     switch (mode) {
-        case BrowseMode::Modpacks:     return QStringLiteral("modrinth");
-        case BrowseMode::Mods:         return QStringLiteral("centralmods");
-        case BrowseMode::ResourcePacks: return QStringLiteral("resourcepack");
-        case BrowseMode::ShaderPacks:  return QStringLiteral("shaderpack");
-    }
-    return {};
-}
-
-static QString modeBrowseButtonText(BrowseMode mode)
-{
-    switch (mode) {
-        case BrowseMode::Modpacks:     return QObject::tr("Browse Modpacks...");
-        case BrowseMode::Mods:         return QObject::tr("Browse Mods...");
-        case BrowseMode::ResourcePacks: return QObject::tr("Browse Resource Packs...");
-        case BrowseMode::ShaderPacks:  return QObject::tr("Browse Shader Packs...");
+        case BrowseMode::Modpacks:      return QStringLiteral("new");
+        case BrowseMode::Mods:          return QStringLiteral("centralmods");
+        case BrowseMode::ResourcePacks: return QStringLiteral("resourcepacks");
+        case BrowseMode::ShaderPacks:   return QStringLiteral("shaderpacks");
     }
     return {};
 }
 
 void BrowsePage::buildLayout()
 {
-    auto* outerLayout = new QVBoxLayout(this);
-    outerLayout->setContentsMargins(0, 0, 0, 0);
-    outerLayout->setSpacing(0);
+    auto* outer = new QVBoxLayout(this);
+    outer->setContentsMargins(0, 0, 0, 0);
+    outer->setSpacing(0);
 
-    auto* content = new QWidget(this);
+    // Scroll area so the page works on small windows
+    auto* scroll = new QScrollArea(this);
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setObjectName(QStringLiteral("browseScroll"));
+
+    auto* content = new QWidget(scroll);
     content->setObjectName(QStringLiteral("browsePageContent"));
+    scroll->setWidget(content);
+
     auto* layout = new QVBoxLayout(content);
-    layout->setContentsMargins(40, 40, 40, 40);
+    layout->setContentsMargins(40, 36, 40, 40);
     layout->setSpacing(20);
     layout->setAlignment(Qt::AlignTop);
 
-    // Header row with icon + title
-    auto* headerRow = new QWidget(content);
-    auto* headerLayout = new QHBoxLayout(headerRow);
-    headerLayout->setContentsMargins(0, 0, 0, 0);
-    headerLayout->setSpacing(16);
+    // ── Header ───────────────────────────────────────────────────────────────
+    auto* headerRow = new QHBoxLayout();
+    headerRow->setSpacing(16);
 
-    m_iconLabel = new QLabel(headerRow);
-    m_iconLabel->setObjectName(QStringLiteral("browsePageIcon"));
-    m_iconLabel->setFixedSize(48, 48);
-    m_iconLabel->setPixmap(QIcon::fromTheme(modeIcon(m_mode)).pixmap(48, 48));
-    headerLayout->addWidget(m_iconLabel);
+    auto* iconLbl = new QLabel(content);
+    iconLbl->setFixedSize(48, 48);
+    iconLbl->setPixmap(QIcon::fromTheme(modeIconName(m_mode)).pixmap(48, 48));
+    headerRow->addWidget(iconLbl);
 
-    auto* titleCol = new QWidget(headerRow);
-    auto* titleColLayout = new QVBoxLayout(titleCol);
-    titleColLayout->setContentsMargins(0, 0, 0, 0);
-    titleColLayout->setSpacing(4);
-
-    m_titleLabel = new QLabel(modeTitle(m_mode), titleCol);
+    auto* titleCol = new QVBoxLayout();
+    titleCol->setSpacing(4);
+    m_titleLabel = new QLabel(modeTitle(m_mode), content);
     m_titleLabel->setObjectName(QStringLiteral("browsePageTitle"));
-    titleColLayout->addWidget(m_titleLabel);
-
-    m_descLabel = new QLabel(modeDescription(m_mode), titleCol);
+    m_descLabel = new QLabel(modeDesc(m_mode), content);
     m_descLabel->setObjectName(QStringLiteral("browsePageDesc"));
     m_descLabel->setWordWrap(true);
-    titleColLayout->addWidget(m_descLabel);
-
-    headerLayout->addWidget(titleCol, 1);
-    layout->addWidget(headerRow);
+    titleCol->addWidget(m_titleLabel);
+    titleCol->addWidget(m_descLabel);
+    headerRow->addLayout(titleCol, 1);
+    layout->addLayout(headerRow);
 
     // Separator
     auto* sep = new QFrame(content);
@@ -125,65 +154,138 @@ void BrowsePage::buildLayout()
     sep->setObjectName(QStringLiteral("browsePageSep"));
     layout->addWidget(sep);
 
-    // Instance selector (only for non-modpack modes)
+    // ── Instance selector (non-Modpacks) ─────────────────────────────────────
     if (m_mode != BrowseMode::Modpacks) {
-        auto* instanceRow = new QWidget(content);
-        auto* instLayout = new QHBoxLayout(instanceRow);
-        instLayout->setContentsMargins(0, 0, 0, 0);
-        instLayout->setSpacing(12);
+        auto* instRow = new QHBoxLayout();
+        instRow->setSpacing(12);
 
-        auto* instLabel = new QLabel(tr("For instance:"), instanceRow);
-        instLabel->setObjectName(QStringLiteral("browsePageLabel"));
-        instLayout->addWidget(instLabel);
+        auto* instLbl = new QLabel(tr("Install into:"), content);
+        instLbl->setObjectName(QStringLiteral("browsePageLabel"));
+        instRow->addWidget(instLbl);
 
-        m_instanceCombo = new QComboBox(instanceRow);
+        m_instanceCombo = new QComboBox(content);
         m_instanceCombo->setObjectName(QStringLiteral("browseInstanceCombo"));
         m_instanceCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        instLayout->addWidget(m_instanceCombo, 1);
+        instRow->addWidget(m_instanceCombo, 1);
 
-        layout->addWidget(instanceRow);
+        layout->addLayout(instRow);
         updateInstanceCombo();
     }
 
-    // Search bar row
-    auto* searchRow = new QWidget(content);
-    auto* searchLayout = new QHBoxLayout(searchRow);
-    searchLayout->setContentsMargins(0, 0, 0, 0);
-    searchLayout->setSpacing(12);
-
-    m_searchEdit = new QLineEdit(searchRow);
+    // ── Search bar ────────────────────────────────────────────────────────────
+    m_searchEdit = new QLineEdit(content);
     m_searchEdit->setObjectName(QStringLiteral("browseSearchEdit"));
     m_searchEdit->setPlaceholderText(tr("Search..."));
-    m_searchEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_searchEdit->setFixedHeight(40);
-    connect(m_searchEdit, &QLineEdit::returnPressed, this, &BrowsePage::onBrowseClicked);
-    searchLayout->addWidget(m_searchEdit, 1);
+    m_searchEdit->setFixedHeight(42);
+    // Enter in search bar → open Modrinth (first/default platform)
+    connect(m_searchEdit, &QLineEdit::returnPressed, this,
+            [this] { onPlatformClicked(QStringLiteral("modrinth")); });
+    layout->addWidget(m_searchEdit);
 
-    m_browseBtn = new QPushButton(modeBrowseButtonText(m_mode), searchRow);
-    m_browseBtn->setObjectName(QStringLiteral("browseBrowseBtn"));
-    m_browseBtn->setFixedHeight(40);
-    connect(m_browseBtn, &QPushButton::clicked, this, &BrowsePage::onBrowseClicked);
-    searchLayout->addWidget(m_browseBtn);
+    // ── Platform source label ─────────────────────────────────────────────────
+    m_pickLabel = new QLabel(tr("Choose a source:"), content);
+    m_pickLabel->setObjectName(QStringLiteral("browsePickLabel"));
+    layout->addWidget(m_pickLabel);
 
-    layout->addWidget(searchRow);
-
-    // Tip label
-    m_tipLabel = new QLabel(content);
-    m_tipLabel->setObjectName(QStringLiteral("browsePageTip"));
-    m_tipLabel->setWordWrap(true);
-
-    if (m_mode == BrowseMode::Modpacks) {
-        m_tipLabel->setText(tr("Tip: Clicking 'Browse Modpacks...' will open the full modpack browser "
-                               "where you can install any pack from Modrinth, CurseForge, FTB and more."));
-    } else {
-        m_tipLabel->setText(tr("Tip: Select an instance first, then click Browse to open the resource "
-                               "browser for that instance."));
-    }
-    layout->addWidget(m_tipLabel);
+    // ── Platform cards ────────────────────────────────────────────────────────
+    addPlatformCards(layout);
 
     layout->addStretch(1);
+    outer->addWidget(scroll);
+}
 
-    outerLayout->addWidget(content);
+void BrowsePage::addPlatformCards(QLayout* parentLayout)
+{
+    const auto platforms = platformsForMode(m_mode);
+
+    // Two cards per row using a flow of HBoxLayouts
+    QHBoxLayout* rowLayout = nullptr;
+    int col = 0;
+    constexpr int COLS = 2;
+
+    for (const Platform& plat : platforms) {
+        if (col == 0 || rowLayout == nullptr) {
+            rowLayout = new QHBoxLayout();
+            rowLayout->setSpacing(12);
+            parentLayout->addItem(rowLayout);
+        }
+
+        // ── Platform card ─────────────────────────────────────────────────────
+        auto* card = new QFrame(parentLayout->parentWidget());
+        card->setObjectName(QStringLiteral("platformCard"));
+        card->setCursor(Qt::PointingHandCursor);
+        card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        card->setFixedHeight(78);
+
+        auto* cardLayout = new QHBoxLayout(card);
+        cardLayout->setContentsMargins(16, 12, 16, 12);
+        cardLayout->setSpacing(14);
+
+        // Icon
+        auto* iconLbl = new QLabel(card);
+        iconLbl->setFixedSize(36, 36);
+        const QIcon icon = QIcon::fromTheme(plat.iconName);
+        if (!icon.isNull())
+            iconLbl->setPixmap(icon.pixmap(36, 36));
+        cardLayout->addWidget(iconLbl);
+
+        // Name + description
+        auto* textCol = new QVBoxLayout();
+        textCol->setSpacing(3);
+        auto* nameLbl = new QLabel(plat.name, card);
+        nameLbl->setObjectName(QStringLiteral("platformCardName"));
+        auto* descLbl = new QLabel(plat.desc, card);
+        descLbl->setObjectName(QStringLiteral("platformCardDesc"));
+        descLbl->setWordWrap(true);
+        textCol->addWidget(nameLbl);
+        textCol->addWidget(descLbl);
+        cardLayout->addLayout(textCol, 1);
+
+        // Chevron →
+        auto* arrow = new QLabel(QStringLiteral("›"), card);
+        arrow->setObjectName(QStringLiteral("platformCardArrow"));
+        arrow->setFixedWidth(16);
+        cardLayout->addWidget(arrow);
+
+        // Click: mouse press on the card frame
+        const QString pid = plat.id;
+        card->installEventFilter(this);
+        card->setProperty("platformId", pid);
+
+        rowLayout->addWidget(card);
+        ++col;
+
+        if (col >= COLS) {
+            col = 0;
+            rowLayout = nullptr;
+        }
+    }
+
+    // Pad the last row if it has only one card
+    if (col == 1 && rowLayout)
+        rowLayout->addStretch(1);
+}
+
+bool BrowsePage::eventFilter(QObject* obj, QEvent* event)
+{
+    if (event->type() == QEvent::MouseButtonRelease) {
+        const QString pid = qobject_cast<QWidget*>(obj) ? qobject_cast<QWidget*>(obj)->property("platformId").toString() : QString();
+        if (!pid.isEmpty()) {
+            onPlatformClicked(pid);
+            return true;
+        }
+    }
+    return QWidget::eventFilter(obj, event);
+}
+
+void BrowsePage::onPlatformClicked(const QString& platformId)
+{
+    const QString searchTerm = m_searchEdit ? m_searchEdit->text() : QString();
+    QString instanceId;
+    if (m_instanceCombo && m_instanceCombo->currentIndex() >= 0)
+        instanceId = m_instanceCombo->currentData().toString();
+
+    emit openBrowserRequested(m_mode, platformId, searchTerm, instanceId);
 }
 
 void BrowsePage::updateInstanceCombo()
@@ -203,21 +305,10 @@ void BrowsePage::updateInstanceCombo()
         m_instanceCombo->addItem(tr("No instances available"), QString());
 }
 
-void BrowsePage::onBrowseClicked()
-{
-    const QString searchTerm = m_searchEdit ? m_searchEdit->text() : QString();
-    QString instanceId;
-    if (m_instanceCombo && m_instanceCombo->currentIndex() >= 0)
-        instanceId = m_instanceCombo->currentData().toString();
-
-    emit openBrowserRequested(m_mode, searchTerm, instanceId);
-}
-
 void BrowsePage::retranslate()
 {
-    m_titleLabel->setText(modeTitle(m_mode));
-    m_descLabel->setText(modeDescription(m_mode));
-    m_browseBtn->setText(modeBrowseButtonText(m_mode));
-    if (m_searchEdit)
-        m_searchEdit->setPlaceholderText(tr("Search..."));
+    if (m_titleLabel)  m_titleLabel->setText(modeTitle(m_mode));
+    if (m_descLabel)   m_descLabel->setText(modeDesc(m_mode));
+    if (m_searchEdit)  m_searchEdit->setPlaceholderText(tr("Search..."));
+    if (m_pickLabel)   m_pickLabel->setText(tr("Choose a source:"));
 }

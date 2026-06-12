@@ -1281,9 +1281,7 @@ endif()
 
 qt_wrap_ui(LAUNCHER_UI
     ui/MainWindow.ui
-    ui/setupwizard/PasteWizardPage.ui
-    ui/setupwizard/AutoJavaWizardPage.ui
-    ui/setupwizard/LoginWizardPage.ui
+    # PasteWizardPage.ui, AutoJavaWizardPage.ui, LoginWizardPage.ui removed (converted to code-based layout)
     ui/pages/global/AccountListPage.ui
     ui/pages/global/JavaPage.ui
     ui/pages/global/LauncherPage.ui

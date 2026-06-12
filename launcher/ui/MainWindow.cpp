@@ -100,6 +100,7 @@
 #include "ui/ViewLogWindow.h"
 #include "ui/dialogs/AboutDialog.h"
 #include "ui/dialogs/CopyInstanceDialog.h"
+#include "ui/dialogs/ResourceDownloadDialog.h"
 #include "ui/dialogs/CreateShortcutDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ExportInstanceDialog.h"
@@ -347,10 +348,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         // set the cat action priority here so you can still see the action in qt designer
         ui->actionCAT->setPriority(QAction::LowPriority);
         bool cat_enable = APPLICATION->settings()->get("TheCat").toBool();
-        ui->actionCAT->setChecked(cat_enable);
+        // If no cat pack is selected ("None"), cat_enable is effectively false
+        const bool hasActivePack = !APPLICATION->settings()->get("BackgroundCat").toString().isEmpty();
+        ui->actionCAT->setChecked(cat_enable && hasActivePack);
         connect(ui->actionCAT, &QAction::toggled, this, &MainWindow::onCatToggled);
         connect(APPLICATION, &Application::currentCatChanged, this, &MainWindow::onCatChanged);
-        setCatBackground(cat_enable);
+        setCatBackground(cat_enable && hasActivePack);
     }
 
     // Togglable status bar
@@ -451,7 +454,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 #ifndef Q_OS_MAC
 void MainWindow::keyReleaseEvent(QKeyEvent* event)
 {
-    if (event->key() == Qt::Key_Alt && !APPLICATION->settings()->get("MenuBarInsteadOfToolBar").toBool())
+    // In the new layout, Alt key must not reveal the legacy menu bar
+    if (event->key() == Qt::Key_Alt && !m_navBar && !APPLICATION->settings()->get("MenuBarInsteadOfToolBar").toBool())
         ui->menuBar->setVisible(!ui->menuBar->isVisible());
     else
         QMainWindow::keyReleaseEvent(event);
@@ -636,8 +640,8 @@ void MainWindow::buildNewLayout()
     auto addBrowsePage = [&](BrowseMode mode) {
         auto* page = new BrowsePage(mode, m_mainStack);
         connect(page, &BrowsePage::openBrowserRequested, this,
-                [this](BrowseMode m, const QString& q, const QString& instId) {
-                    openBrowserPage(static_cast<int>(m), q, instId);
+                [this](BrowseMode m, const QString& platformId, const QString& q, const QString& instId) {
+                    openBrowserPage(static_cast<int>(m), platformId, q, instId);
                 });
         m_mainStack->addWidget(page);
     };
@@ -679,20 +683,70 @@ void MainWindow::navigateToPage(int page)
         m_homePage->refresh();
 }
 
-void MainWindow::openBrowserPage(int mode, const QString& searchTerm, const QString& instanceId)
+void MainWindow::openBrowserPage(int mode, const QString& platformId, const QString& searchTerm, const QString& instanceId)
 {
+    Q_UNUSED(searchTerm)  // TODO: pass searchTerm to pre-fill search once dialogs support it
+
     switch (static_cast<BrowseMode>(mode)) {
+
+        // ── Modpacks: open NewInstanceDialog on the chosen platform tab ────────
         case BrowseMode::Modpacks: {
-            addInstance(QString(), {});
+            auto* dlg = new NewInstanceDialog(APPLICATION->instances()->defaultGroup(),
+                                              QString(), {}, this);
+            dlg->setAttribute(Qt::WA_DeleteOnClose);
+            // Navigate to the specific platform page (modrinth / flame / ftb / atl / technic)
+            if (!platformId.isEmpty())
+                dlg->selectPage(platformId);
+            connect(dlg, &QDialog::accepted, this, [this, dlg] {
+                auto* task = dlg->extractTask();
+                if (task)
+                    instanceFromInstanceTask(task);
+            });
+            dlg->open();
             break;
         }
+
+        // ── Resources: open the appropriate download dialog directly ──────────
         case BrowseMode::Mods:
         case BrowseMode::ResourcePacks:
         case BrowseMode::ShaderPacks: {
+            // Select the instance first
             if (!instanceId.isEmpty())
                 setSelectedInstanceById(instanceId);
-            if (m_selectedInstance) {
-                on_actionEditInstance_triggered();
+
+            auto* inst = dynamic_cast<MinecraftInstance*>(m_selectedInstance);
+            if (!inst) {
+                // No instance selected — fall back to opening the instance editor
+                if (m_selectedInstance)
+                    on_actionEditInstance_triggered();
+                break;
+            }
+
+            // Flame resource pages use "curseforge" ID (not "flame")
+            const QString resPageId = (platformId == QLatin1String("flame"))
+                                          ? QStringLiteral("curseforge")
+                                          : platformId;
+
+            if (static_cast<BrowseMode>(mode) == BrowseMode::Mods) {
+                auto* dlg = new ResourceDownload::ModDownloadDialog(this, inst->loaderModList(), inst);
+                dlg->setAttribute(Qt::WA_DeleteOnClose);
+                if (!resPageId.isEmpty())
+                    dlg->selectPage(resPageId);
+                dlg->open();
+
+            } else if (static_cast<BrowseMode>(mode) == BrowseMode::ResourcePacks) {
+                auto* dlg = new ResourceDownload::ResourcePackDownloadDialog(this, inst->resourcePackList(), inst);
+                dlg->setAttribute(Qt::WA_DeleteOnClose);
+                if (!resPageId.isEmpty())
+                    dlg->selectPage(resPageId);
+                dlg->open();
+
+            } else {  // ShaderPacks
+                auto* dlg = new ResourceDownload::ShaderPackDownloadDialog(this, inst->shaderPackList(), inst);
+                dlg->setAttribute(Qt::WA_DeleteOnClose);
+                if (!resPageId.isEmpty())
+                    dlg->selectPage(resPageId);
+                dlg->open();
             }
             break;
         }
@@ -791,69 +845,85 @@ void MainWindow::konamiTriggered()
 
 void MainWindow::showInstanceContextMenu(const QPoint& pos)
 {
-    QList<QAction*> actions;
+    QMenu menu;
+    menu.setObjectName(QStringLiteral("instanceContextMenu"));
 
-    QAction* actionSep = new QAction("", this);
-    actionSep->setSeparator(true);
+    const bool onInstance = view->indexAt(pos).isValid();
+    if (onInstance && m_selectedInstance) {
+        // Header: instance name (disabled, acts as section label)
+        auto* header = new QAction(m_selectedInstance->name(), this);
+        header->setEnabled(false);
+        menu.addAction(header);
+        menu.addSeparator();
 
-    bool onInstance = view->indexAt(pos).isValid();
-    if (onInstance) {
-        // reuse the file menu actions
-        actions = ui->fileMenu->actions();
+        // Primary actions
+        menu.addAction(ui->actionLaunchInstance);
+        menu.addSeparator();
 
-        // remove the add instance action, launcher settings action and close action
-        actions.removeFirst();
-        actions.removeLast();
-        actions.removeLast();
+        // Edit group
+        menu.addAction(ui->actionEditInstance);
+        menu.addAction(ui->actionRenameInstance);
+        menu.addAction(ui->actionChangeInstIcon);
+        menu.addSeparator();
 
-        actions.prepend(ui->actionChangeInstIcon);
-        actions.prepend(ui->actionRenameInstance);
+        // Copy / export
+        menu.addAction(ui->actionCopyInstance);
+        menu.addAction(ui->actionExportInstance);  // has sub-menu: Zip/MrPack/Flame
+        menu.addAction(ui->actionCreateInstanceShortcut);
+        menu.addSeparator();
 
-        // add header
-        actions.prepend(actionSep);
-        QAction* actionVoid = new QAction(m_selectedInstance->name(), this);
-        actionVoid->setEnabled(false);
-        actions.prepend(actionVoid);
+        // Folder / group
+        menu.addAction(ui->actionViewSelectedInstFolder);
+        menu.addAction(ui->actionChangeInstGroup);
+        menu.addSeparator();
+
+        // Destructive — at the bottom with a visual gap
+        menu.addAction(ui->actionDeleteInstance);
+
     } else {
-        auto group = view->groupNameAt(pos);
+        const auto group = view->groupNameAt(pos);
 
-        QAction* actionVoid = new QAction(group.isNull() ? BuildConfig.LAUNCHER_DISPLAYNAME : group, this);
-        actionVoid->setEnabled(false);
+        // Header: group name or launcher name
+        auto* header = new QAction(group.isNull() ? BuildConfig.LAUNCHER_DISPLAYNAME : group, this);
+        header->setEnabled(false);
+        menu.addAction(header);
+        menu.addSeparator();
 
-        QAction* actionCreateInstance = new QAction(tr("&Create instance"), this);
-        actionCreateInstance->setToolTip(ui->actionAddInstance->toolTip());
+        // Create instance (always present)
+        auto* actionCreate = new QAction(QIcon::fromTheme(QStringLiteral("new")), tr("Create Instance"), this);
+        actionCreate->setToolTip(ui->actionAddInstance->toolTip());
         if (!group.isNull()) {
-            QVariantMap instance_action_data;
-            instance_action_data["group"] = group;
-            actionCreateInstance->setData(instance_action_data);
+            QVariantMap data;
+            data["group"] = group;
+            actionCreate->setData(data);
         }
+        connect(actionCreate, &QAction::triggered, this, &MainWindow::on_actionAddInstance_triggered);
+        menu.addAction(actionCreate);
 
-        connect(actionCreateInstance, &QAction::triggered, this, &MainWindow::on_actionAddInstance_triggered);
-
-        actions.prepend(actionSep);
-        actions.prepend(actionVoid);
-        actions.append(actionCreateInstance);
+        // Group-specific actions
         if (!group.isNull()) {
-            QAction* actionDeleteGroup = new QAction(tr("&Delete group"), this);
-            connect(actionDeleteGroup, &QAction::triggered, this, [this, group] { deleteGroup(group); });
-            actions.append(actionDeleteGroup);
-
-            QAction* actionRenameGroup = new QAction(tr("&Rename group"), this);
+            menu.addSeparator();
+            auto* actionRenameGroup = new QAction(QIcon::fromTheme(QStringLiteral("rename")), tr("Rename Group"), this);
             connect(actionRenameGroup, &QAction::triggered, this, [this, group] { renameGroup(group); });
-            actions.append(actionRenameGroup);
+            menu.addAction(actionRenameGroup);
+
+            auto* actionDeleteGroup = new QAction(QIcon::fromTheme(QStringLiteral("delete")), tr("Delete Group"), this);
+            connect(actionDeleteGroup, &QAction::triggered, this, [this, group] { deleteGroup(group); });
+            menu.addAction(actionDeleteGroup);
         }
     }
-    QMenu myMenu;
-    myMenu.addActions(actions);
-    /*
-    if (onInstance)
-        myMenu.setEnabled(m_selectedInstance->canLaunch());
-    */
-    myMenu.exec(view->mapToGlobal(pos));
+
+    menu.exec(view->mapToGlobal(pos));
 }
 
 void MainWindow::updateMainToolBar()
 {
+    // New layout uses the NavBar sidebar — legacy menu bar and toolbar are always hidden
+    if (m_navBar) {
+        menuBar()->hide();
+        ui->mainToolBar->hide();
+        return;
+    }
     ui->menuBar->setVisible(APPLICATION->settings()->get("MenuBarInsteadOfToolBar").toBool());
     ui->mainToolBar->setVisible(ui->menuBar->isNativeMenuBar() || !APPLICATION->settings()->get("MenuBarInsteadOfToolBar").toBool());
 }
@@ -1718,7 +1788,9 @@ void MainWindow::newsButtonClicked()
 
 void MainWindow::onCatChanged(int)
 {
-    setCatBackground(APPLICATION->settings()->get("TheCat").toBool());
+    const bool theCat = APPLICATION->settings()->get("TheCat").toBool();
+    const bool hasActivePack = !APPLICATION->settings()->get("BackgroundCat").toString().isEmpty();
+    setCatBackground(theCat && hasActivePack);
 }
 
 void MainWindow::on_actionAbout_triggered()

@@ -2,45 +2,77 @@
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (C) 2022 Tayou <git@tayou.org>
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, version 3.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
 
 #include <ui/widgets/AppearanceWidget.h>
+#include <QFrame>
 #include <QHBoxLayout>
-#include <QWidget>
+#include <QIcon>
+#include <QLabel>
+#include <QVBoxLayout>
 #include "BaseWizardPage.h"
 
 class ThemeWizardPage : public BaseWizardPage {
     Q_OBJECT
-
    public:
     ThemeWizardPage(QWidget* parent = nullptr) : BaseWizardPage(parent)
     {
-        auto layout = new QVBoxLayout(this);
-        layout->addWidget(&widget);
-        layout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-        layout->setContentsMargins(0, 0, 0, 0);
-        setLayout(layout);
+        auto* outer = new QVBoxLayout(this);
+        outer->setContentsMargins(0, 0, 0, 0);
+        outer->setSpacing(0);
 
-        setTitle(tr("Appearance"));
-        setSubTitle(tr("Select theme and icons to use"));
+        // Header
+        auto* header = new QFrame(this);
+        header->setObjectName(QStringLiteral("wizardPageHeader"));
+        header->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        auto* hLayout = new QHBoxLayout(header);
+        hLayout->setContentsMargins(24, 18, 24, 18);
+        hLayout->setSpacing(16);
+        auto* iconLabel = new QLabel(header);
+        iconLabel->setFixedSize(48, 48);
+        iconLabel->setPixmap(
+            QIcon::fromTheme(QStringLiteral("preferences-desktop-theme"),
+                             QIcon::fromTheme(QStringLiteral("applications-graphics")))
+                .pixmap(48, 48));
+        hLayout->addWidget(iconLabel);
+        auto* textBox = new QVBoxLayout();
+        textBox->setSpacing(4);
+        m_title = new QLabel(header);
+        m_title->setObjectName(QStringLiteral("wizardPageTitle"));
+        m_subtitle = new QLabel(header);
+        m_subtitle->setObjectName(QStringLiteral("wizardPageSubtitle"));
+        m_subtitle->setWordWrap(true);
+        textBox->addWidget(m_title);
+        textBox->addWidget(m_subtitle);
+        hLayout->addLayout(textBox, 1);
+        outer->addWidget(header);
+
+        // Content
+        auto* content = new QVBoxLayout();
+        content->setContentsMargins(16, 12, 16, 12);
+        content->addWidget(&m_widget);
+        content->addStretch(1);
+        outer->addLayout(content, 1);
+
+        retranslate();
     }
 
-    bool validatePage() override { return true; };
-    void retranslate() override { widget.retranslateUi(); }
+    bool validatePage() override { return true; }
+
+    void retranslate() override
+    {
+        setTitle(tr("Appearance"));
+        setSubTitle({});
+        if (m_title)
+            m_title->setText(tr("Appearance"));
+        if (m_subtitle)
+            m_subtitle->setText(tr("Choose a theme and icon set that suits you."));
+        m_widget.retranslateUi();
+    }
 
    private:
-    AppearanceWidget widget{ true };
+    AppearanceWidget m_widget{ true };
+    QLabel* m_title = nullptr;
+    QLabel* m_subtitle = nullptr;
 };

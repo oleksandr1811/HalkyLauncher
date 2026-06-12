@@ -660,7 +660,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         // Theming
         m_settings->registerSetting("IconTheme", QString("fluent_dark"));
         m_settings->registerSetting("ApplicationTheme", QString("Halky"));
-        m_settings->registerSetting("BackgroundCat", QString("typescript"));
+        m_settings->registerSetting("BackgroundCat", QString(""));  // "" = None (no cat)
         m_settings->registerSetting("Snow", isWinter);
 
         // Remembered state

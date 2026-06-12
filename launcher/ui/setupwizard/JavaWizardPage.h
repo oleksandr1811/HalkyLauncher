@@ -2,6 +2,8 @@
 
 #include "BaseWizardPage.h"
 
+#include <QLabel>
+
 class JavaWizardWidget;
 
 class JavaWizardPage : public BaseWizardPage {
@@ -22,4 +24,6 @@ class JavaWizardPage : public BaseWizardPage {
 
    private: /* data */
     JavaWizardWidget* m_java_widget = nullptr;
+    QLabel* m_headerTitle = nullptr;
+    QLabel* m_headerSubtitle = nullptr;
 };

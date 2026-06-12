@@ -312,6 +312,12 @@ void NewInstanceDialog::on_instNameTextBox_textChanged([[maybe_unused]] const QS
     updateDialogState();
 }
 
+void NewInstanceDialog::selectPage(const QString& pageId)
+{
+    if (m_container)
+        m_container->selectPage(pageId);
+}
+
 void NewInstanceDialog::importIconNow()
 {
     if (importIcon) {

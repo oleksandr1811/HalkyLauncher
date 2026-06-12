@@ -68,6 +68,9 @@ class NewInstanceDialog : public QDialog, public BasePageProvider {
 
     InstanceTask* extractTask();
 
+    // Navigate the dialog's page container to a specific platform page (e.g. "modrinth", "flame")
+    void selectPage(const QString& pageId);
+
     QString dialogTitle() override;
     QList<BasePage*> getPages() override;
 

@@ -2,20 +2,16 @@
 /*
  *  Halky Launcher
  *  Copyright (C) 2024-2025 Halky Launcher Contributors
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, version 3.
  */
 
 #pragma once
 
 #include <QFrame>
+#include <QLabel>
 #include <QList>
 #include <QToolButton>
 
 class QVBoxLayout;
-class QPropertyAnimation;
 
 class HalkyNavBar : public QFrame {
     Q_OBJECT
@@ -51,11 +47,18 @@ class HalkyNavBar : public QFrame {
 
    private:
     void buildLayout();
-    QToolButton* makeNavButton(const QString& iconName, const QString& text);
-    QToolButton* makeUtilButton(const QString& iconName, const QString& text);
+    QToolButton* makeNavButton(const QIcon& icon, const QString& text);
+    QToolButton* makeUtilButton(const QIcon& icon, const QString& text);
     void updateActiveState();
 
+    // Returns a painted icon for items that have no theme equivalent
+    static QIcon paintedIcon(const QString& type);
+
     QVBoxLayout* m_mainLayout = nullptr;
+
+    // Header: launcher name label + toggle button
+    QWidget* m_headerWidget = nullptr;
+    QLabel* m_launcherLabel = nullptr;
     QToolButton* m_toggleBtn = nullptr;
 
     struct NavItem {

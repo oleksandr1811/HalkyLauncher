@@ -1,28 +1,30 @@
 #pragma once
-#include <QWidget>
-#include "BaseWizardPage.h"
 
-namespace Ui {
-class LoginWizardPage;
-}
+#include "BaseWizardPage.h"
+#include "minecraft/auth/MinecraftAccount.h"
+
+#include <QLabel>
+#include <QPushButton>
 
 class LoginWizardPage : public BaseWizardPage {
     Q_OBJECT
-
    public:
     explicit LoginWizardPage(QWidget* parent = nullptr);
-    ~LoginWizardPage();
+    ~LoginWizardPage() override = default;
 
     void initializePage() override;
     bool validatePage() override;
+
+   protected:
     void retranslate() override;
 
-   private slots:
-    void on_addMicrosoftButton_clicked();
-    void on_addElybyButton_clicked();
-    void on_addOfflineButton_clicked();
-    void on_addCustomButton_clicked();
-
    private:
-    Ui::LoginWizardPage* ui;
+    void addAccount(MinecraftAccountPtr account);
+
+    QLabel* m_headerTitle = nullptr;
+    QLabel* m_headerSubtitle = nullptr;
+    QPushButton* m_msaBtn = nullptr;
+    QPushButton* m_elyBtn = nullptr;
+    QPushButton* m_offlineBtn = nullptr;
+    QPushButton* m_customBtn = nullptr;
 };

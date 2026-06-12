@@ -224,6 +224,12 @@ void AppearanceWidget::loadThemeSettings()
     if (!m_themesOnly) {
         const QString currentCat = settings->get("BackgroundCat").toString();
         const auto cats = APPLICATION->themeManager()->getValidCatPacks();
+
+        // "None" is always the first entry; empty string ID means no cat
+        m_ui->catPackComboBox->addItem(tr("None"), QString(""));
+        if (currentCat.isEmpty())
+            m_ui->catPackComboBox->setCurrentIndex(0);
+
         for (int i = 0; i < cats.count(); ++i) {
             const CatPack* cat = cats[i];
 
@@ -231,7 +237,7 @@ void AppearanceWidget::loadThemeSettings()
             m_ui->catPackComboBox->addItem(catIcon, cat->name(), cat->id());
 
             if (currentCat == cat->id())
-                m_ui->catPackComboBox->setCurrentIndex(i);
+                m_ui->catPackComboBox->setCurrentIndex(i + 1);  // +1 for the "None" entry
         }
     }
 
@@ -285,10 +291,17 @@ void AppearanceWidget::updateConsolePreview()
 
 void AppearanceWidget::updateCatPreview()
 {
-    QIcon catPackIcon(APPLICATION->themeManager()->getCatPack());
-    m_ui->catPreview->setIcon(catPackIcon);
+    const QString catPath = APPLICATION->themeManager()->getCatPack();
+    const bool hasNone = catPath.isEmpty();
 
-    auto effect = dynamic_cast<QGraphicsOpacityEffect*>(m_ui->catPreview->graphicsEffect());
-    if (effect)
-        effect->setOpacity(m_ui->catOpacitySlider->value() / 100.0);
+    m_ui->catPreview->setVisible(!hasNone);
+    m_ui->catOpacitySlider->setEnabled(!hasNone);
+    m_ui->catFitComboBox->setEnabled(!hasNone);
+
+    if (!hasNone) {
+        m_ui->catPreview->setIcon(QIcon(catPath));
+        auto effect = dynamic_cast<QGraphicsOpacityEffect*>(m_ui->catPreview->graphicsEffect());
+        if (effect)
+            effect->setOpacity(m_ui->catOpacitySlider->value() / 100.0);
+    }
 }
