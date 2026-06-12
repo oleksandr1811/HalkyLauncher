@@ -137,9 +137,9 @@ void OnboardingOverlay::positionTooltip()
         int x = target.isValid() ? target.right() + 16 : (ws.width() - ts.width()) / 2;
         int y = target.isValid() ? target.top() : (ws.height() - ts.height()) / 2;
 
-        // Clamp to window bounds
-        x = qBound(8, x, ws.width() - ts.width() - 8);
-        y = qBound(8, y, ws.height() - ts.height() - 8);
+        // Clamp to window bounds (ensure max >= min to avoid qBound assert when window is tiny)
+        x = qBound(8, x, qMax(8, ws.width() - ts.width() - 8));
+        y = qBound(8, y, qMax(8, ws.height() - ts.height() - 8));
 
         m_tooltip->move(x, y);
     } else {
