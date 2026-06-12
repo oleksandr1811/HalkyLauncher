@@ -165,7 +165,9 @@ class Task : public QObject, public QRunnable {
     //! used by external code to ask the task to abort
     virtual bool abort()
     {
-        if (canAbort())
+        // Only abort if the task is currently running; calling emitAborted() on a
+        // non-running task fires a debug assert (emitAborted guards against this).
+        if (canAbort() && isRunning())
             emitAborted();
         return canAbort();
     }
