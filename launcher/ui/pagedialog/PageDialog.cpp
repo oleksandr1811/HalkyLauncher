@@ -16,7 +16,11 @@
 #include "PageDialog.h"
 
 #include <QDialogButtonBox>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QIcon>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -27,32 +31,74 @@
 
 PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidget* parent) : QDialog(parent)
 {
+    setObjectName(QStringLiteral("settingsDialog"));
     setWindowTitle(pageProvider->dialogTitle());
-    m_container = new PageContainer(pageProvider, std::move(defaultId), this);
+    setMinimumSize(860, 580);
 
     auto* mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
+    // ── Title bar ────────────────────────────────────────────────────────────
+    auto* titleBar = new QFrame(this);
+    titleBar->setObjectName(QStringLiteral("settingsTitleBar"));
+    titleBar->setFrameShape(QFrame::NoFrame);
+    auto* titleLayout = new QHBoxLayout(titleBar);
+    titleLayout->setContentsMargins(20, 14, 20, 14);
+    titleLayout->setSpacing(12);
+
+    auto* titleIcon = new QLabel(titleBar);
+    titleIcon->setObjectName(QStringLiteral("settingsTitleIcon"));
+    titleIcon->setFixedSize(24, 24);
+    titleIcon->setPixmap(QIcon::fromTheme(QStringLiteral("settings")).pixmap(24, 24));
+    titleLayout->addWidget(titleIcon);
+
+    auto* titleLabel = new QLabel(pageProvider->dialogTitle(), titleBar);
+    titleLabel->setObjectName(QStringLiteral("settingsTitleLabel"));
+    titleLayout->addWidget(titleLabel, 1);
+
+    mainLayout->addWidget(titleBar);
+
+    // ── Focus stealer (prevents auto-focus on first input field) ─────────────
     auto* focusStealer = new QPushButton(this);
     mainLayout->addWidget(focusStealer);
     focusStealer->setDefault(true);
     focusStealer->hide();
 
+    // ── Page container ────────────────────────────────────────────────────────
+    m_container = new PageContainer(pageProvider, std::move(defaultId), this);
+    m_container->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    m_container->layout()->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(m_container);
-    mainLayout->setSpacing(0);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(mainLayout);
 
+    // ── Buttons ───────────────────────────────────────────────────────────────
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Help | QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    buttons->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
-    buttons->button(QDialogButtonBox::Cancel)->setText(tr("&Cancel"));
-    buttons->button(QDialogButtonBox::Help)->setText(tr("Help"));
-    buttons->setContentsMargins(0, 0, 6, 6);
+    buttons->setContentsMargins(0, 0, 12, 10);
+    buttons->setObjectName(QStringLiteral("settingsButtons"));
+
+    auto* okBtn = buttons->button(QDialogButtonBox::Ok);
+    okBtn->setText(tr("Apply && Close"));
+    okBtn->setObjectName(QStringLiteral("settingsOkBtn"));
+    okBtn->setDefault(true);
+    okBtn->setAutoDefault(true);
+
+    auto* cancelBtn = buttons->button(QDialogButtonBox::Cancel);
+    cancelBtn->setText(tr("Cancel"));
+    cancelBtn->setDefault(false);
+    cancelBtn->setAutoDefault(false);
+
+    auto* helpBtn = buttons->button(QDialogButtonBox::Help);
+    helpBtn->setText(tr("Help"));
+    helpBtn->setDefault(false);
+    helpBtn->setAutoDefault(false);
+
     m_container->addButtons(buttons);
 
-    connect(buttons->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &PageDialog::accept);
-    connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &PageDialog::reject);
-    connect(buttons->button(QDialogButtonBox::Help), &QPushButton::clicked, m_container, &PageContainer::help);
+    connect(okBtn, &QPushButton::clicked, this, &PageDialog::accept);
+    connect(cancelBtn, &QPushButton::clicked, this, &PageDialog::reject);
+    connect(helpBtn, &QPushButton::clicked, m_container, &PageContainer::help);
 
     restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toString().toUtf8()));
 }

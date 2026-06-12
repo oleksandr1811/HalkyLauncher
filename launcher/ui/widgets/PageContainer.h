@@ -114,6 +114,7 @@ class PageContainer : public QWidget, public BasePageContainer {
     PageModel* m_model;
     QStackedLayout* m_pageStack;
     QListView* m_pageList;
+    QLineEdit* m_searchBox = nullptr;
     QLabel* m_header;
     QGridLayout* m_layout;
 };

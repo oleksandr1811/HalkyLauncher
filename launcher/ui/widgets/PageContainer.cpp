@@ -161,7 +161,21 @@ void PageContainer::createUI()
 {
     m_pageStack = new QStackedLayout;
     m_pageList = new PageView;
+    m_pageList->setObjectName(QStringLiteral("pageContainerList"));
     m_header = new QLabel();
+    m_header->setObjectName(QStringLiteral("pageContainerHeader"));
+
+    // Search / filter input above the page list
+    m_searchBox = new QLineEdit(this);
+    m_searchBox->setObjectName(QStringLiteral("pageSearchBox"));
+    m_searchBox->setPlaceholderText(tr("Search..."));
+    m_searchBox->setClearButtonEnabled(true);
+    connect(m_searchBox, &QLineEdit::textChanged, this, [this](const QString& text) {
+        m_proxyModel->setFilterFixedString(text);
+        // Auto-select first result when filtering
+        if (!text.isEmpty() && m_proxyModel->rowCount() > 0)
+            m_pageList->setCurrentIndex(m_proxyModel->index(0, 0));
+    });
 
     QFont headerLabelFont = m_header->font();
     headerLabelFont.setBold(true);
@@ -180,8 +194,11 @@ void PageContainer::createUI()
     m_pageStack->addWidget(new QWidget(this));
 
     m_layout = new QGridLayout;
+    // Row 0: search box (col 0) + page header label (col 1)
+    m_layout->addWidget(m_searchBox, 0, 0, 1, 1);
     m_layout->addLayout(headerHLayout, 0, 1, 1, 1);
-    m_layout->addWidget(m_pageList, 0, 0, 3, 1);
+    // Row 1–2: page list (col 0, spans 2 rows) + page content (col 1)
+    m_layout->addWidget(m_pageList, 1, 0, 2, 1);
     m_layout->addLayout(m_pageStack, 1, 1, 1, 1);
     m_layout->setColumnStretch(1, 4);
     m_layout->setContentsMargins(0, 0, 0, 0);
@@ -199,12 +216,12 @@ void PageContainer::retranslate()
 
 void PageContainer::addButtons(QWidget* buttons)
 {
-    m_layout->addWidget(buttons, 2, 1, 1, 2);
+    m_layout->addWidget(buttons, 3, 1, 1, 2);
 }
 
 void PageContainer::addButtons(QLayout* buttons)
 {
-    m_layout->addLayout(buttons, 2, 1, 1, 2);
+    m_layout->addLayout(buttons, 3, 1, 1, 2);
 }
 
 void PageContainer::useSidebarStyle(bool sidebar)

@@ -79,6 +79,10 @@ NewInstanceDialog::NewInstanceDialog(const QString& initialGroup,
 
     InstIconKey = "default";
     ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));
+    ui->iconButton->setToolTip(tr("Click to change instance icon"));
+
+    // Instance name: no explicit label — use placeholder
+    ui->instNameTextBox->setPlaceholderText(tr("Instance name"));
 
     QStringList groups = APPLICATION->instances()->getGroups();
     groups.prepend("");
