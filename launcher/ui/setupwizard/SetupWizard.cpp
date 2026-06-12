@@ -249,8 +249,7 @@ SetupWizard::SetupWizard(QWidget* parent) : QWizard(parent)
     setObjectName(QStringLiteral("SetupWizard"));
     // ClassicStyle renders WatermarkPixmap as the left column on all pages
     setWizardStyle(QWizard::ClassicStyle);
-    setOptions(QWizard::NoCancelButton | QWizard::NoBackButtonOnFirstPage | QWizard::IndependentPages |
-               QWizard::HaveCustomButton1);
+    setOptions(QWizard::NoCancelButton | QWizard::IndependentPages | QWizard::HaveCustomButton1);
     resize(840, 580);
     setMinimumSize(520, 460);
 

@@ -704,7 +704,7 @@ void MainWindow::openBrowserPage(int mode, const QString& platformId, const QStr
 
         // ── Modpacks: open NewInstanceDialog on the chosen platform tab ────────
         case BrowseMode::Modpacks: {
-            auto* dlg = new NewInstanceDialog(APPLICATION->instances()->defaultGroup(),
+            auto* dlg = new NewInstanceDialog(APPLICATION->settings()->get("LastUsedGroupForNewInstance").toString(),
                                               QString(), {}, this);
             dlg->setAttribute(Qt::WA_DeleteOnClose);
             // Navigate to the specific platform page (modrinth / flame / ftb / atl / technic)
@@ -834,7 +834,7 @@ void MainWindow::updateAllMods()
     if (tasks.isEmpty())
         return;
 
-    auto* concurrent = new ConcurrentTask(this, QStringLiteral("UpdateMods"),
+    auto* concurrent = new ConcurrentTask(QStringLiteral("UpdateMods"),
                                           APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
     for (auto& task : tasks)
         concurrent->addTask(task);
