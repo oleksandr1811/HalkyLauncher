@@ -72,10 +72,8 @@ bool ConcurrentTask::abort()
     m_queue.clear();
 
     if (m_doing.isEmpty()) {
-        // Don't call emitAborted() here, we want to bypass the 'is the task running' check
-        emit aborted();
-        emit finished();
-
+        if (isRunning())
+            emitAborted();
         return true;
     }
 
