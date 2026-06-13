@@ -136,8 +136,12 @@ void InlineResourcePage::updateInstanceCombo()
     else
         m_instanceCombo->setCurrentIndex(0);
 
-    // Trigger browser refresh (index may not have changed, so do it explicitly)
-    onInstanceComboChanged(m_instanceCombo->currentIndex());
+    // Trigger browser refresh (index may not have changed, so do it explicitly).
+    // Use a deferred call so this never runs during widget construction — creating
+    // a ResourceDownloadDialog during buildLayout() crashes in debug builds because
+    // PageContainer tries to start Modrinth/Flame requests before Qt is fully set up.
+    const int idx = m_instanceCombo->currentIndex();
+    QTimer::singleShot(0, this, [this, idx]() { onInstanceComboChanged(idx); });
 }
 
 void InlineResourcePage::setCurrentInstanceById(const QString& id)
