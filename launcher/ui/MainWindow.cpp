@@ -697,9 +697,7 @@ void MainWindow::buildNewLayout()
     {
         MinecraftAccountPtr acc = APPLICATION->accounts()->defaultAccount();
         if (acc) {
-            auto face = acc->getFace();
-            m_newsPanel->setCurrentAccount(acc->displayName(),
-                                            face.isNull() ? QPixmap() : face.pixmap(32, 32));
+            m_newsPanel->setCurrentAccount(acc->displayName(), acc->getFace());
         }
     }
 
@@ -1222,7 +1220,7 @@ void MainWindow::defaultAccountChanged()
 
         // Update the account section in the right-side news panel
         if (m_newsPanel)
-            m_newsPanel->setCurrentAccount(account->displayName(), face.isNull() ? QPixmap() : face.pixmap(32, 32));
+            m_newsPanel->setCurrentAccount(account->displayName(), face);
         return;
     }
 
