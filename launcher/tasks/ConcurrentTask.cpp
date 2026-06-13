@@ -116,6 +116,10 @@ void ConcurrentTask::executeNextSubTask()
     }
     if (m_queue.isEmpty()) {
         if (m_doing.isEmpty()) {
+            // Guard against re-entrant calls (e.g. via processEvents() inside a
+            // stepProgress handler) that could fire emitSucceeded/emitFailed twice.
+            if (!isRunning())
+                return;
             if (m_failed.isEmpty()) {
                 emitSucceeded();
             } else if (m_failed.count() == 1) {
