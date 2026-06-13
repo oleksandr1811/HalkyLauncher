@@ -166,7 +166,8 @@ void ConcurrentTask::startSubTask(Task::Ptr next)
 
     updateState();
 
-    QMetaObject::invokeMethod(next.get(), &Task::start, Qt::QueuedConnection);
+    if (!next->isRunning())
+        QMetaObject::invokeMethod(next.get(), &Task::start, Qt::QueuedConnection);
 }
 
 void ConcurrentTask::subTaskFinished(Task::Ptr task, TaskStepState state)
