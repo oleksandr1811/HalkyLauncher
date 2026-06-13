@@ -20,6 +20,7 @@
 class QVBoxLayout;
 class QLabel;
 class QToolButton;
+class QWidget;
 
 class NewsPanel : public QFrame {
     Q_OBJECT
@@ -45,10 +46,11 @@ class NewsPanel : public QFrame {
     void buildLayout();
     void clearNews();
     void addNewsItem(const NewsEntryPtr& entry);
+    void loadAdBanner();
 
     QVBoxLayout* m_mainLayout = nullptr;
 
-    // Account section
+    // Account section (bottom)
     QWidget* m_accountWidget = nullptr;
     QLabel* m_accountAvatar = nullptr;
     QLabel* m_accountName = nullptr;
@@ -59,6 +61,10 @@ class NewsPanel : public QFrame {
     QWidget* m_scrollContent = nullptr;
     QVBoxLayout* m_newsLayout = nullptr;
     QLabel* m_emptyLabel = nullptr;
+
+    // Ad banner (above account section)
+    QWidget* m_adContainer = nullptr;
+    QLabel* m_adBanner = nullptr;
 
     static constexpr int PANEL_W = 260;
 };

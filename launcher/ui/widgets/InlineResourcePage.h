@@ -42,6 +42,7 @@ class InlineResourcePage : public QWidget {
     void runDownloadTasks(const QList<ResourceDownload::ResourceDownloadDialog::DownloadTaskPtr>& tasks);
 
     BrowseMode m_mode;
+    bool m_browserStretchPresent = true;
     QComboBox* m_instanceCombo = nullptr;
     QLabel* m_noInstanceLabel = nullptr;
     QWidget* m_browserArea = nullptr;

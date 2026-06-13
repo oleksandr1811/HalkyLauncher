@@ -16,6 +16,10 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPixmap>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
@@ -39,7 +43,85 @@ void NewsPanel::buildLayout()
     m_mainLayout->setContentsMargins(0, 0, 0, 0);
     m_mainLayout->setSpacing(0);
 
-    // ── Account section ───────────────────────────────────────────────────────
+    // ── News header (top) ─────────────────────────────────────────────────────
+    auto* header = new QWidget(this);
+    header->setObjectName(QStringLiteral("newsPanelHeader"));
+    header->setFixedHeight(48);
+    auto* headerLayout = new QHBoxLayout(header);
+    headerLayout->setContentsMargins(14, 0, 8, 0);
+
+    m_titleLabel = new QLabel(tr("News"), header);
+    m_titleLabel->setObjectName(QStringLiteral("newsPanelTitle"));
+    headerLayout->addWidget(m_titleLabel);
+    headerLayout->addStretch(1);
+
+    m_moreBtn = new QToolButton(header);
+    m_moreBtn->setObjectName(QStringLiteral("newsPanelMoreBtn"));
+    m_moreBtn->setText(tr("More..."));
+    m_moreBtn->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_moreBtn->setAutoRaise(true);
+    connect(m_moreBtn, &QToolButton::clicked, this, &NewsPanel::moreNewsClicked);
+    headerLayout->addWidget(m_moreBtn);
+
+    m_mainLayout->addWidget(header);
+
+    auto* sep = new QFrame(this);
+    sep->setFrameShape(QFrame::HLine);
+    sep->setObjectName(QStringLiteral("newsPanelSep"));
+    m_mainLayout->addWidget(sep);
+
+    // ── News scroll area ──────────────────────────────────────────────────────
+    m_scrollArea = new QScrollArea(this);
+    m_scrollArea->setObjectName(QStringLiteral("newsPanelScroll"));
+    m_scrollArea->setFrameShape(QFrame::NoFrame);
+    m_scrollArea->setWidgetResizable(true);
+    m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    m_scrollContent = new QWidget(m_scrollArea);
+    m_scrollContent->setObjectName(QStringLiteral("newsPanelContent"));
+    m_newsLayout = new QVBoxLayout(m_scrollContent);
+    m_newsLayout->setContentsMargins(0, 0, 0, 0);
+    m_newsLayout->setSpacing(1);
+    m_newsLayout->setAlignment(Qt::AlignTop);
+
+    m_emptyLabel = new QLabel(tr("No news available"), m_scrollContent);
+    m_emptyLabel->setObjectName(QStringLiteral("newsPanelEmpty"));
+    m_emptyLabel->setAlignment(Qt::AlignCenter);
+    m_emptyLabel->setWordWrap(true);
+    m_newsLayout->addWidget(m_emptyLabel);
+    m_newsLayout->addStretch(1);
+
+    m_scrollArea->setWidget(m_scrollContent);
+    m_mainLayout->addWidget(m_scrollArea, 1);
+
+    // ── Ad banner (above profile, hidden until image loads) ───────────────────
+    m_adContainer = new QWidget(this);
+    m_adContainer->setObjectName(QStringLiteral("newsPanelAdContainer"));
+    m_adContainer->setVisible(false);
+    auto* adContainerLayout = new QVBoxLayout(m_adContainer);
+    adContainerLayout->setContentsMargins(0, 0, 0, 0);
+    adContainerLayout->setSpacing(0);
+
+    auto* adSep = new QFrame(m_adContainer);
+    adSep->setFrameShape(QFrame::HLine);
+    adSep->setObjectName(QStringLiteral("newsPanelSep"));
+    adContainerLayout->addWidget(adSep);
+
+    m_adBanner = new QLabel(m_adContainer);
+    m_adBanner->setObjectName(QStringLiteral("newsPanelAdBanner"));
+    m_adBanner->setFixedSize(PANEL_W, PANEL_W);
+    m_adBanner->setAlignment(Qt::AlignCenter);
+    m_adBanner->setScaledContents(true);
+    adContainerLayout->addWidget(m_adBanner);
+
+    m_mainLayout->addWidget(m_adContainer);
+
+    // ── Account section (bottom) ──────────────────────────────────────────────
+    auto* accSep = new QFrame(this);
+    accSep->setFrameShape(QFrame::HLine);
+    accSep->setObjectName(QStringLiteral("newsPanelSep"));
+    m_mainLayout->addWidget(accSep);
+
     m_accountWidget = new QWidget(this);
     m_accountWidget->setObjectName(QStringLiteral("newsPanelAccount"));
     m_accountWidget->setCursor(Qt::PointingHandCursor);
@@ -67,70 +149,33 @@ void NewsPanel::buildLayout()
     connect(switchBtn, &QToolButton::clicked, this, &NewsPanel::accountButtonClicked);
     accLayout->addWidget(switchBtn);
 
-    // The whole account row is also clickable
     m_accountWidget->installEventFilter(this);
     m_accountWidget->setProperty("accountRow", true);
 
     m_mainLayout->addWidget(m_accountWidget);
 
-    // Separator after account section
-    auto* accSep = new QFrame(this);
-    accSep->setFrameShape(QFrame::HLine);
-    accSep->setObjectName(QStringLiteral("newsPanelSep"));
-    m_mainLayout->addWidget(accSep);
+    loadAdBanner();
+}
 
-    // ── News header ───────────────────────────────────────────────────────────
-    // Panel header
-    auto* header = new QWidget(this);
-    header->setObjectName(QStringLiteral("newsPanelHeader"));
-    header->setFixedHeight(48);
-    auto* headerLayout = new QHBoxLayout(header);
-    headerLayout->setContentsMargins(14, 0, 8, 0);
-
-    m_titleLabel = new QLabel(tr("News"), header);
-    m_titleLabel->setObjectName(QStringLiteral("newsPanelTitle"));
-    headerLayout->addWidget(m_titleLabel);
-    headerLayout->addStretch(1);
-
-    m_moreBtn = new QToolButton(header);
-    m_moreBtn->setObjectName(QStringLiteral("newsPanelMoreBtn"));
-    m_moreBtn->setText(tr("More..."));
-    m_moreBtn->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    m_moreBtn->setAutoRaise(true);
-    connect(m_moreBtn, &QToolButton::clicked, this, &NewsPanel::moreNewsClicked);
-    headerLayout->addWidget(m_moreBtn);
-
-    m_mainLayout->addWidget(header);
-
-    // Separator
-    auto* sep = new QFrame(this);
-    sep->setFrameShape(QFrame::HLine);
-    sep->setObjectName(QStringLiteral("newsPanelSep"));
-    m_mainLayout->addWidget(sep);
-
-    // Scroll area for news items
-    m_scrollArea = new QScrollArea(this);
-    m_scrollArea->setObjectName(QStringLiteral("newsPanelScroll"));
-    m_scrollArea->setFrameShape(QFrame::NoFrame);
-    m_scrollArea->setWidgetResizable(true);
-    m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    m_scrollContent = new QWidget(m_scrollArea);
-    m_scrollContent->setObjectName(QStringLiteral("newsPanelContent"));
-    m_newsLayout = new QVBoxLayout(m_scrollContent);
-    m_newsLayout->setContentsMargins(0, 0, 0, 0);
-    m_newsLayout->setSpacing(1);
-    m_newsLayout->setAlignment(Qt::AlignTop);
-
-    m_emptyLabel = new QLabel(tr("No news available"), m_scrollContent);
-    m_emptyLabel->setObjectName(QStringLiteral("newsPanelEmpty"));
-    m_emptyLabel->setAlignment(Qt::AlignCenter);
-    m_emptyLabel->setWordWrap(true);
-    m_newsLayout->addWidget(m_emptyLabel);
-    m_newsLayout->addStretch(1);
-
-    m_scrollArea->setWidget(m_scrollContent);
-    m_mainLayout->addWidget(m_scrollArea, 1);
+void NewsPanel::loadAdBanner()
+{
+    auto* manager = new QNetworkAccessManager(this);
+    auto* reply = manager->get(QNetworkRequest(QUrl(QStringLiteral("https://halkylauncher.alex1811.ovh/ad.png"))));
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if (reply->error() != QNetworkReply::NoError || status == 404) {
+            m_adContainer->setVisible(false);
+            return;
+        }
+        QPixmap pix;
+        if (!pix.loadFromData(reply->readAll()) || pix.isNull()) {
+            m_adContainer->setVisible(false);
+            return;
+        }
+        m_adBanner->setPixmap(pix.scaled(PANEL_W, PANEL_W, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+        m_adContainer->setVisible(true);
+    });
 }
 
 void NewsPanel::clearNews()

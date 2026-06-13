@@ -217,8 +217,14 @@ void InlineResourcePage::showBrowserForInstance(BaseInstance* inst)
     m_dlg->setWindowModality(Qt::NonModal);
     m_dlg->setAttribute(Qt::WA_DeleteOnClose, false);
     m_dlg->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_dlg->setMinimumSize(0, 0);
 
-    m_browserLayout->insertWidget(0, m_dlg);
+    // Remove the trailing stretch so the dialog fills the full available height.
+    if (m_browserStretchPresent) {
+        delete m_browserLayout->takeAt(m_browserLayout->count() - 1);
+        m_browserStretchPresent = false;
+    }
+    m_browserLayout->insertWidget(0, m_dlg, 1);
     m_dlg->setVisible(true);
 
     // Use QueuedConnection so the handler runs after accept()/reject() returns
@@ -232,6 +238,10 @@ void InlineResourcePage::clearBrowser()
         m_browserLayout->removeWidget(m_dlg);
         delete m_dlg;
         m_dlg = nullptr;
+    }
+    if (!m_browserStretchPresent) {
+        m_browserLayout->addStretch(1);
+        m_browserStretchPresent = true;
     }
     if (m_noInstanceLabel)
         m_noInstanceLabel->setVisible(true);
