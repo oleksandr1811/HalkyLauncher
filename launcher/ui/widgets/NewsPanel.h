@@ -30,11 +30,16 @@ class NewsPanel : public QFrame {
     void updateNews(const QList<NewsEntryPtr>& entries);
     void setLoading(bool loading);
 
+    // Updates the account section at the top of the panel.
+    void setCurrentAccount(const QString& displayName, const QPixmap& face);
+
     bool eventFilter(QObject* obj, QEvent* event) override;
 
    signals:
     void newsItemClicked(const QString& url);
     void moreNewsClicked();
+    // Emitted when the user clicks the account area — MainWindow shows the menu.
+    void accountButtonClicked();
 
    private:
     void buildLayout();
@@ -42,6 +47,12 @@ class NewsPanel : public QFrame {
     void addNewsItem(const NewsEntryPtr& entry);
 
     QVBoxLayout* m_mainLayout = nullptr;
+
+    // Account section
+    QWidget* m_accountWidget = nullptr;
+    QLabel* m_accountAvatar = nullptr;
+    QLabel* m_accountName = nullptr;
+
     QLabel* m_titleLabel = nullptr;
     QToolButton* m_moreBtn = nullptr;
     QScrollArea* m_scrollArea = nullptr;

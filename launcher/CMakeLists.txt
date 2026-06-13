@@ -891,6 +891,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/NewsPanel.cpp
     ui/widgets/BrowsePage.h
     ui/widgets/BrowsePage.cpp
+    ui/widgets/InlineResourcePage.h
+    ui/widgets/InlineResourcePage.cpp
     ui/widgets/OnboardingOverlay.h
     ui/widgets/OnboardingOverlay.cpp
     ui/pages/global/HomePage.h

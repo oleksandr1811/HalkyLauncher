@@ -175,7 +175,7 @@ set(Launcher_NEWS_RSS_URL "https://halkylauncher.alex1811.ovh/feed.xml" CACHE ST
 set(Launcher_NEWS_OPEN_URL "https://github.com/Oleksandr1811/HalkyLauncher/releases" CACHE STRING "URL that gets opened when the user clicks 'More News'")
 set(Launcher_WIKI_URL "https://prismlauncher.org/wiki/" CACHE STRING "URL that gets opened when the user clicks 'Launcher Help'")
 set(Launcher_HELP_URL "https://prismlauncher.org/wiki/help-pages/%1" CACHE STRING "URL (with arg %1 to be substituted with page-id) that gets opened when the user requests help in a dialog window")
-set(Launcher_LOGIN_CALLBACK_URL "https://HalkyLauncher.org/successful-login" CACHE STRING "URL that gets opened when the user successfully logins.")
+set(Launcher_LOGIN_CALLBACK_URL "https://halkylauncher.alex1811.ovh/auth-success.html" CACHE STRING "URL that gets opened when the user successfully logins.")
 set(Launcher_LEGACY_FMLLIBS_BASE_URL "https://files.prismlauncher.org/fmllibs/" CACHE STRING "URL for legacy (<=1.5.2) FML Libraries.")
 
 ######## Set version numbers ########
@@ -214,13 +214,13 @@ set(Launcher_TRANSLATIONS_URL "https://github.com/oleksandr1811/halkyi8n/" CACHE
 set(Launcher_TRANSLATION_FILES_URL "https://halkyi8n.alex1811.ovh/" CACHE STRING "URL for the translations files.")
 
 # Telegram Space
-set(Launcher_TELEGRAM_URL "https://HalkyLauncher.org/telegram" CACHE STRING "URL to the Telegram Chat")
+set(Launcher_TELEGRAM_URL "https://t.me/halky_launcher" CACHE STRING "URL to the Telegram Chat")
 
 # Discord URL
-set(Launcher_DISCORD_URL "https://HalkyLauncher.org/discord" CACHE STRING "URL for the Discord guild.")
+set(Launcher_DISCORD_URL "https://discord.gg/Ntx74Zy3Wy" CACHE STRING "URL for the Discord guild.")
 
 # Subreddit URL
-set(Launcher_SUBREDDIT_URL "https://HalkyLauncher.org/reddit" CACHE STRING "URL for the subreddit.")
+set(Launcher_SUBREDDIT_URL "https://t.me/halky_launcher" CACHE STRING "URL for the subreddit.")
 
 # Builds
 set(Launcher_QT_VERSION_MAJOR "6" CACHE STRING "Major Qt version to build against")

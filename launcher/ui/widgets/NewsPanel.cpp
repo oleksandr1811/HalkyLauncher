@@ -15,6 +15,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMouseEvent>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
@@ -38,6 +39,47 @@ void NewsPanel::buildLayout()
     m_mainLayout->setContentsMargins(0, 0, 0, 0);
     m_mainLayout->setSpacing(0);
 
+    // ── Account section ───────────────────────────────────────────────────────
+    m_accountWidget = new QWidget(this);
+    m_accountWidget->setObjectName(QStringLiteral("newsPanelAccount"));
+    m_accountWidget->setCursor(Qt::PointingHandCursor);
+    m_accountWidget->setFixedHeight(56);
+
+    auto* accLayout = new QHBoxLayout(m_accountWidget);
+    accLayout->setContentsMargins(14, 8, 14, 8);
+    accLayout->setSpacing(10);
+
+    m_accountAvatar = new QLabel(m_accountWidget);
+    m_accountAvatar->setObjectName(QStringLiteral("newsPanelAccountAvatar"));
+    m_accountAvatar->setFixedSize(32, 32);
+    accLayout->addWidget(m_accountAvatar);
+
+    m_accountName = new QLabel(tr("No account"), m_accountWidget);
+    m_accountName->setObjectName(QStringLiteral("newsPanelAccountName"));
+    m_accountName->setWordWrap(false);
+    accLayout->addWidget(m_accountName, 1);
+
+    auto* switchBtn = new QToolButton(m_accountWidget);
+    switchBtn->setObjectName(QStringLiteral("newsPanelAccountSwitch"));
+    switchBtn->setText(QStringLiteral("▾"));
+    switchBtn->setToolTip(tr("Switch account"));
+    switchBtn->setAutoRaise(true);
+    connect(switchBtn, &QToolButton::clicked, this, &NewsPanel::accountButtonClicked);
+    accLayout->addWidget(switchBtn);
+
+    // The whole account row is also clickable
+    m_accountWidget->installEventFilter(this);
+    m_accountWidget->setProperty("accountRow", true);
+
+    m_mainLayout->addWidget(m_accountWidget);
+
+    // Separator after account section
+    auto* accSep = new QFrame(this);
+    accSep->setFrameShape(QFrame::HLine);
+    accSep->setObjectName(QStringLiteral("newsPanelSep"));
+    m_mainLayout->addWidget(accSep);
+
+    // ── News header ───────────────────────────────────────────────────────────
     // Panel header
     auto* header = new QWidget(this);
     header->setObjectName(QStringLiteral("newsPanelHeader"));
@@ -151,11 +193,31 @@ void NewsPanel::addNewsItem(const NewsEntryPtr& entry)
 bool NewsPanel::eventFilter(QObject* obj, QEvent* event)
 {
     if (event->type() == QEvent::MouseButtonRelease) {
+        // Account row click → emit signal so MainWindow shows the account menu
+        if (qobject_cast<QWidget*>(obj) && obj->property("accountRow").toBool()) {
+            emit accountButtonClicked();
+            return true;
+        }
         const QString link = obj->property("newsLink").toString();
         if (!link.isEmpty())
             emit newsItemClicked(link);
     }
     return QFrame::eventFilter(obj, event);
+}
+
+void NewsPanel::setCurrentAccount(const QString& displayName, const QPixmap& face)
+{
+    if (!m_accountName || !m_accountAvatar)
+        return;
+
+    m_accountName->setText(displayName.isEmpty() ? tr("No account") : displayName);
+
+    if (face.isNull()) {
+        m_accountAvatar->setPixmap(
+            QIcon::fromTheme(QStringLiteral("noaccount")).pixmap(32, 32));
+    } else {
+        m_accountAvatar->setPixmap(face.scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
 }
 
 void NewsPanel::updateNews(const QList<NewsEntryPtr>& entries)

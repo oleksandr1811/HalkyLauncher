@@ -66,6 +66,7 @@ class HalkyNavBar;
 class NewsPanel;
 class HomePage;
 class OnboardingOverlay;
+class InlineResourcePage;
 
 namespace Ui {
 class MainWindow;
@@ -272,4 +273,8 @@ class MainWindow : public QMainWindow {
     QWidget* m_libraryPage = nullptr;
     QWidget* m_instanceActionBar = nullptr;
     OnboardingOverlay* m_onboarding = nullptr;
+    // Inline resource browsers (stack indices 3/4/5)
+    InlineResourcePage* m_inlineModsPage = nullptr;
+    InlineResourcePage* m_inlineResPacksPage = nullptr;
+    InlineResourcePage* m_inlineShaderPage = nullptr;
 };

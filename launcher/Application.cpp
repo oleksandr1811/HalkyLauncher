@@ -95,6 +95,7 @@
 #include <QDate>
 #include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QFileOpenEvent>
 #include <QIcon>
@@ -1549,6 +1550,24 @@ std::shared_ptr<DiscordIntegration> Application::discord()
 
 QIcon Application::logo()
 {
+    // Try the 256px PNG first — it carries colour information unlike the traced SVG.
+    // Use QFile::exists to verify the resource is actually present before loading.
+    if (QFile::exists(QStringLiteral(":/org.HalkyLauncher.HalkyLauncher_256.png"))) {
+        QIcon icon;
+        icon.addFile(QStringLiteral(":/org.HalkyLauncher.HalkyLauncher_256.png"), QSize(256, 256));
+        if (!icon.pixmap(256, 256).isNull())
+            return icon;
+    }
+
+    // Windows: fall back to the ICO bundled in Qt resources.
+#ifdef Q_OS_WIN
+    if (QFile::exists(QStringLiteral(":/HalkyLauncher.ico"))) {
+        QIcon ico(QStringLiteral(":/HalkyLauncher.ico"));
+        if (!ico.pixmap(32, 32).isNull())
+            return ico;
+    }
+#endif
+
     return QIcon(":/" + BuildConfig.LAUNCHER_SVGFILENAME);
 }
 

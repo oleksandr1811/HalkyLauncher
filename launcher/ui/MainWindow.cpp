@@ -122,6 +122,7 @@
 #include "ui/themes/ThemeManager.h"
 #include "ui/widgets/BrowsePage.h"
 #include "ui/widgets/HalkyNavBar.h"
+#include "ui/widgets/InlineResourcePage.h"
 #include "ui/widgets/LabeledToolButton.h"
 #include "ui/widgets/NewsPanel.h"
 #include "ui/widgets/OnboardingOverlay.h"
@@ -649,25 +650,35 @@ void MainWindow::buildNewLayout()
     }
     m_mainStack->addWidget(m_libraryPage);  // index 1
 
-    // Pages 2-5: Browse portals
-    auto addBrowsePage = [&](BrowseMode mode) {
-        auto* page = new BrowsePage(mode, m_mainStack);
+    // Page 2: Browse Modpacks (card source picker → opens NewInstanceDialog)
+    {
+        auto* page = new BrowsePage(BrowseMode::Modpacks, m_mainStack);
         connect(page, &BrowsePage::openBrowserRequested, this,
                 [this](BrowseMode m, const QString& platformId, const QString& q, const QString& instId) {
                     openBrowserPage(static_cast<int>(m), platformId, q, instId);
                 });
-        m_mainStack->addWidget(page);
-    };
-    addBrowsePage(BrowseMode::Modpacks);      // index 2
-    addBrowsePage(BrowseMode::Mods);          // index 3
-    addBrowsePage(BrowseMode::ResourcePacks); // index 4
-    addBrowsePage(BrowseMode::ShaderPacks);   // index 5
+        m_mainStack->addWidget(page);  // index 2
+    }
+
+    // Pages 3-5: Inline resource browsers (embedded dialog, no separate window)
+    m_inlineModsPage = new InlineResourcePage(BrowseMode::Mods, m_mainStack);
+    m_mainStack->addWidget(m_inlineModsPage);       // index 3
+
+    m_inlineResPacksPage = new InlineResourcePage(BrowseMode::ResourcePacks, m_mainStack);
+    m_mainStack->addWidget(m_inlineResPacksPage);   // index 4
+
+    m_inlineShaderPage = new InlineResourcePage(BrowseMode::ShaderPacks, m_mainStack);
+    m_mainStack->addWidget(m_inlineShaderPage);     // index 5
 
     // ── News panel (right) ──────────────────────────────────────────────────
     m_newsPanel = new NewsPanel(ui->centralWidget);
     connect(m_newsPanel, &NewsPanel::newsItemClicked, this,
             [](const QString& url) { QDesktopServices::openUrl(QUrl(url)); });
     connect(m_newsPanel, &NewsPanel::moreNewsClicked, this, &MainWindow::on_actionMoreNews_triggered);
+    connect(m_newsPanel, &NewsPanel::accountButtonClicked, this, [this]() {
+        if (auto* menu = ui->actionAccountsButton->menu())
+            menu->popup(QCursor::pos());
+    });
 
     // ── Wire into centralWidget's layout ────────────────────────────────────
     auto* hbox = qobject_cast<QHBoxLayout*>(ui->centralWidget->layout());
@@ -682,6 +693,16 @@ void MainWindow::buildNewLayout()
     // Refresh home page
     m_homePage->refresh();
 
+    // Show current account in the news panel right away
+    {
+        MinecraftAccountPtr acc = APPLICATION->accounts()->defaultAccount();
+        if (acc) {
+            auto face = acc->getFace();
+            m_newsPanel->setCurrentAccount(acc->displayName(),
+                                            face.isNull() ? QPixmap() : face.pixmap(32, 32));
+        }
+    }
+
     // Set up onboarding (shown only on first launch after setup wizard)
     setupOnboarding();
 }
@@ -694,6 +715,17 @@ void MainWindow::navigateToPage(int page)
     // Refresh home page data when navigating to it
     if (page == HalkyNavBar::HomePage && m_homePage)
         m_homePage->refresh();
+
+    // Pre-select the currently selected instance in the inline resource browsers
+    if (m_selectedInstance) {
+        const QString id = m_selectedInstance->id();
+        if (page == HalkyNavBar::ModsPage && m_inlineModsPage)
+            m_inlineModsPage->setCurrentInstanceById(id);
+        else if (page == HalkyNavBar::ResourcePacksPage && m_inlineResPacksPage)
+            m_inlineResPacksPage->setCurrentInstanceById(id);
+        else if (page == HalkyNavBar::ShaderPacksPage && m_inlineShaderPage)
+            m_inlineShaderPage->setCurrentInstanceById(id);
+    }
 }
 
 void MainWindow::openBrowserPage(int mode, const QString& platformId, const QString& searchTerm, const QString& instanceId)
@@ -1187,12 +1219,19 @@ void MainWindow::defaultAccountChanged()
         } else {
             ui->actionAccountsButton->setIcon(face);
         }
+
+        // Update the account section in the right-side news panel
+        if (m_newsPanel)
+            m_newsPanel->setCurrentAccount(account->displayName(), face.isNull() ? QPixmap() : face.pixmap(32, 32));
         return;
     }
 
     // Set the icon to the "no account" icon.
     ui->actionAccountsButton->setIcon(QIcon::fromTheme("noaccount"));
     ui->actionAccountsButton->setText(tr("Accounts"));
+
+    if (m_newsPanel)
+        m_newsPanel->setCurrentAccount(QString(), QPixmap());
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* ev)

@@ -172,15 +172,16 @@ void BrowsePage::buildLayout()
         updateInstanceCombo();
     }
 
-    // ── Search bar ────────────────────────────────────────────────────────────
-    m_searchEdit = new QLineEdit(content);
-    m_searchEdit->setObjectName(QStringLiteral("browseSearchEdit"));
-    m_searchEdit->setPlaceholderText(tr("Search..."));
-    m_searchEdit->setFixedHeight(42);
-    // Enter in search bar → open Modrinth (first/default platform)
-    connect(m_searchEdit, &QLineEdit::returnPressed, this,
-            [this] { onPlatformClicked(QStringLiteral("modrinth")); });
-    layout->addWidget(m_searchEdit);
+    // ── Search bar (not shown for Modpacks — it has its own search inside the dialog) ───
+    if (m_mode != BrowseMode::Modpacks) {
+        m_searchEdit = new QLineEdit(content);
+        m_searchEdit->setObjectName(QStringLiteral("browseSearchEdit"));
+        m_searchEdit->setPlaceholderText(tr("Search..."));
+        m_searchEdit->setFixedHeight(42);
+        connect(m_searchEdit, &QLineEdit::returnPressed, this,
+                [this] { onPlatformClicked(QStringLiteral("modrinth")); });
+        layout->addWidget(m_searchEdit);
+    }
 
     // ── Platform source label ─────────────────────────────────────────────────
     m_pickLabel = new QLabel(tr("Choose a source:"), content);
@@ -309,6 +310,6 @@ void BrowsePage::retranslate()
 {
     if (m_titleLabel)  m_titleLabel->setText(modeTitle(m_mode));
     if (m_descLabel)   m_descLabel->setText(modeDesc(m_mode));
-    if (m_searchEdit)  m_searchEdit->setPlaceholderText(tr("Search..."));
+    if (m_searchEdit)  m_searchEdit->setPlaceholderText(tr("Search..."));  // null for Modpacks
     if (m_pickLabel)   m_pickLabel->setText(tr("Choose a source:"));
 }
