@@ -118,7 +118,7 @@ void InlineResourcePage::updateInstanceCombo()
     auto* instances = APPLICATION->instances();
     int selectIdx = -1;
     for (int i = 0; i < instances->count(); ++i) {
-        auto inst = instances->at(i);
+        auto* inst = instances->at(i);
         if (!inst) continue;
         m_instanceCombo->addItem(inst->name(), inst->id());
         if (inst->id() == prevId)
@@ -166,9 +166,9 @@ void InlineResourcePage::onInstanceComboChanged(int index)
     // Find instance by ID
     auto* instances = APPLICATION->instances();
     for (int i = 0; i < instances->count(); ++i) {
-        auto inst = instances->at(i);
+        auto* inst = instances->at(i);
         if (inst && inst->id() == id) {
-            showBrowserForInstance(inst.get());
+            showBrowserForInstance(inst);
             return;
         }
     }
