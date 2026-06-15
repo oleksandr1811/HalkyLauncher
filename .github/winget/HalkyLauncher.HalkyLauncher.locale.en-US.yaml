@@ -1,0 +1,19 @@
+PackageIdentifier: HalkyLauncher.HalkyLauncher
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: HalkyLauncher
+PublisherUrl: https://github.com/oleksandr1811/HalkyLauncher
+PublisherSupportUrl: https://github.com/oleksandr1811/HalkyLauncher/issues
+PackageName: Halky Launcher
+PackageUrl: https://github.com/oleksandr1811/HalkyLauncher
+License: GPL-3.0
+LicenseUrl: https://github.com/oleksandr1811/HalkyLauncher/blob/develop/LICENSE
+ShortDescription: A Minecraft launcher based on Prism Launcher
+Description: Halky Launcher is a custom Minecraft launcher based on Prism Launcher with a redesigned UI.
+Tags:
+  - minecraft
+  - launcher
+  - game
+ReleaseNotesUrl: https://github.com/oleksandr1811/HalkyLauncher/releases/tag/v1.0.0
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
