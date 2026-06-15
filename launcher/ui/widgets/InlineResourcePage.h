@@ -33,6 +33,9 @@ class InlineResourcePage : public QWidget {
    private slots:
     void onInstanceComboChanged(int index);
 
+   protected:
+    void showEvent(QShowEvent* event) override;
+
    private:
     void buildLayout();
     void updateInstanceCombo();
