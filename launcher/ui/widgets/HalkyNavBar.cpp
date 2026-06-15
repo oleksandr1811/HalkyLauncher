@@ -21,7 +21,7 @@
 
 QIcon HalkyNavBar::paintedIcon(const QString& type)
 {
-    constexpr int S = 20;
+    constexpr int S = 24;
     QPixmap pix(S, S);
     pix.fill(Qt::transparent);
     QPainter p(&pix);
@@ -30,48 +30,47 @@ QIcon HalkyNavBar::paintedIcon(const QString& type)
     p.setBrush(QColor("#a6adc8"));
 
     if (type == QLatin1String("home")) {
-        // House: roof triangle + body rect + door
+        // House: roof triangle + body rect + door (scaled for 24×24)
         QPolygonF roof;
-        roof << QPointF(10, 1) << QPointF(19, 9) << QPointF(1, 9);
+        roof << QPointF(12, 1) << QPointF(23, 11) << QPointF(1, 11);
         p.drawPolygon(roof);
-        p.drawRect(QRectF(2, 9, 16, 10));
+        p.drawRect(QRectF(3, 11, 18, 12));
         p.setBrush(QColor(0x18, 0x18, 0x25));
-        p.drawRect(QRectF(7, 13, 6, 6));
+        p.drawRect(QRectF(9, 16, 6, 7));
 
     } else if (type == QLatin1String("library")) {
-        // Grid of 4 squares (2×2) representing a collection
+        // Grid of 4 squares (2×2) representing a collection (scaled for 24×24)
         for (int row = 0; row < 2; ++row)
             for (int col = 0; col < 2; ++col)
-                p.drawRoundedRect(QRectF(1 + col * 10, 1 + row * 10, 8, 8), 2, 2);
+                p.drawRoundedRect(QRectF(1 + col * 12, 1 + row * 12, 10, 10), 2, 2);
 
     } else if (type == QLatin1String("modpacks")) {
-        // Package / cube outline with a plus
+        // Package / cube outline with a plus (scaled for 24×24)
         QPainterPath box;
-        box.addRoundedRect(QRectF(2, 4, 16, 14), 3, 3);
+        box.addRoundedRect(QRectF(2, 6, 20, 16), 3, 3);
         p.fillPath(box, QColor("#a6adc8"));
         // lid
-        p.drawRect(QRectF(1, 2, 18, 4));
+        p.drawRect(QRectF(1, 2, 22, 6));
         p.setBrush(QColor(0x18, 0x18, 0x25));
         // cross
-        p.drawRect(QRectF(9, 7, 2, 8));
-        p.drawRect(QRectF(5, 10, 10, 2));
+        p.drawRect(QRectF(11, 9, 2, 10));
+        p.drawRect(QRectF(6, 13, 12, 2));
 
     } else if (type == QLatin1String("collapse")) {
-        // Left-pointing chevron « for collapse
-        p.setPen(QPen(QColor("#a6adc8"), 2.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        // Left-pointing chevron for collapse (scaled for 24×24)
+        p.setPen(QPen(QColor("#a6adc8"), 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         p.setBrush(Qt::NoBrush);
         QPainterPath ch;
-        ch.moveTo(13, 4);
-        ch.lineTo(7, 10);
-        ch.lineTo(13, 16);
+        ch.moveTo(15, 5);
+        ch.lineTo(9, 12);
+        ch.lineTo(15, 19);
         p.drawPath(ch);
     } else if (type == QLatin1String("expand")) {
-        // Right-pointing chevron » for expand / hamburger ≡
-        p.setPen(QPen(QColor("#a6adc8"), 2.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        // Hamburger ≡ — 3 horizontal lines (scaled for 24×24)
+        p.setPen(QPen(QColor("#a6adc8"), 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         p.setBrush(Qt::NoBrush);
-        // Hamburger ≡ — 3 horizontal lines
-        for (int y : {5, 10, 15})
-            p.drawLine(3, y, 17, y);
+        for (int y : {6, 12, 18})
+            p.drawLine(3, y, 21, y);
     }
 
     p.end();
@@ -85,6 +84,7 @@ QToolButton* HalkyNavBar::makeNavButton(const QIcon& icon, const QString& text)
     auto* btn = new QToolButton(this);
     btn->setObjectName(QStringLiteral("navItemBtn"));
     btn->setIcon(icon);
+    btn->setIconSize(QSize(22, 22));
     btn->setText(text);
     btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
     btn->setToolTip(text);
@@ -100,6 +100,7 @@ QToolButton* HalkyNavBar::makeUtilButton(const QIcon& icon, const QString& text)
     auto* btn = new QToolButton(this);
     btn->setObjectName(QStringLiteral("navActionBtn"));
     btn->setIcon(icon);
+    btn->setIconSize(QSize(22, 22));
     btn->setText(text);
     btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
     btn->setToolTip(text);
