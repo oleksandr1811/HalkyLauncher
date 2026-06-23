@@ -123,16 +123,6 @@ void InlineResourcePage::updateInstanceCombo()
         auto* inst = instances->at(i);
         if (!inst) continue;
 
-        // For the mods browser, only show instances that have a mod loader installed.
-        if (m_mode == BrowseMode::Mods) {
-            auto* mcinst = dynamic_cast<MinecraftInstance*>(inst);
-            if (!mcinst)
-                continue;
-            auto loaders = mcinst->getPackProfile()->getSupportedModLoaders();
-            if (!loaders.has_value() || !loaders.value())
-                continue;
-        }
-
         m_instanceCombo->addItem(inst->name(), inst->id());
         if (inst->id() == prevId)
             selectIdx = m_instanceCombo->count() - 1;

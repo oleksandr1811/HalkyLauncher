@@ -206,6 +206,7 @@ void LauncherPage::applySettings()
     s->set("NumberOfConcurrentDownloads", ui->numberOfConcurrentDownloadsSpinBox->value());
     s->set("NumberOfManualRetries", ui->numberOfManualRetriesSpinBox->value());
     s->set("RequestTimeout", ui->timeoutSecondsSpinBox->value());
+    s->set("TelemetryEnabled", ui->telemetryEnableBtn->isChecked());
 
     // Console settings
     s->set("ConsoleMaxLines", ui->lineLimitSpinBox->value());
@@ -267,6 +268,8 @@ void LauncherPage::loadSettings()
     ui->numberOfConcurrentDownloadsSpinBox->setValue(s->get("NumberOfConcurrentDownloads").toInt());
     ui->numberOfManualRetriesSpinBox->setValue(s->get("NumberOfManualRetries").toInt());
     ui->timeoutSecondsSpinBox->setValue(s->get("RequestTimeout").toInt());
+    s->getOrRegisterSetting("TelemetryEnabled", true);
+    ui->telemetryEnableBtn->setChecked(s->get("TelemetryEnabled").toBool());
 
     // Console settings
     ui->lineLimitSpinBox->setValue(s->get("ConsoleMaxLines").toInt());

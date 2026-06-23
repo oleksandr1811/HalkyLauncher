@@ -250,6 +250,25 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="telemetryBox">
+         <property name="title">
+          <string>Privacy</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QCheckBox" name="telemetryEnableBtn">
+            <property name="toolTip">
+             <string>Allow the launcher to send anonymous telemetry on startup.</string>
+            </property>
+            <property name="text">
+             <string>Enable anonymous telemetry</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="foldersBox">
          <property name="title">
           <string>Folders</string>
