@@ -157,6 +157,7 @@ QToolButton#telemetryInfoBtn {
     background: transparent;
     border: none;
     color: #6c7086;
+    padding: 4px;
 }
 QScrollBar:vertical {
     background: #181825;

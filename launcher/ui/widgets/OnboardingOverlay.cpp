@@ -101,24 +101,31 @@ void OnboardingOverlay::paintEvent(QPaintEvent*)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
 
-    // Semi-transparent dark overlay
-    p.fillRect(rect(), QColor(0, 0, 0, 140));
+    const QRect& target = (!m_steps.isEmpty() && m_currentStep < m_steps.size())
+                              ? m_steps[m_currentStep].targetRect
+                              : QRect();
 
-    if (!m_steps.isEmpty() && m_currentStep < m_steps.size()) {
-        const QRect& target = m_steps[m_currentStep].targetRect;
-        if (target.isValid()) {
-            // Cut a "spotlight" around the target element
-            p.setCompositionMode(QPainter::CompositionMode_Clear);
-            QPainterPath spotlight;
-            spotlight.addRoundedRect(target.adjusted(-6, -6, 6, 6), 8, 8);
-            p.fillPath(spotlight, Qt::transparent);
-            p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    if (target.isValid()) {
+        // Draw overlay as full rect minus the spotlight hole using a path with
+        // an even-odd fill rule — this avoids CompositionMode_Clear which
+        // renders as black instead of transparent on some platforms.
+        QRect spotlight = target.adjusted(-6, -6, 6, 6);
+        QPainterPath outerPath;
+        outerPath.addRect(rect());
+        QPainterPath innerPath;
+        innerPath.addRoundedRect(spotlight, 8, 8);
+        QPainterPath maskPath = outerPath.subtracted(innerPath);
 
-            // Highlight border
-            p.setPen(QPen(QColor(203, 166, 247), 2));
-            p.setBrush(Qt::NoBrush);
-            p.drawRoundedRect(target.adjusted(-6, -6, 6, 6), 8, 8);
-        }
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(0, 0, 0, 150));
+        p.drawPath(maskPath);
+
+        // Highlight border around spotlight
+        p.setPen(QPen(QColor(203, 166, 247), 2));
+        p.setBrush(Qt::NoBrush);
+        p.drawRoundedRect(spotlight, 8, 8);
+    } else {
+        p.fillRect(rect(), QColor(0, 0, 0, 150));
     }
 }
 
@@ -130,21 +137,51 @@ void OnboardingOverlay::positionTooltip()
     m_tooltip->adjustSize();
     const QSize ts = m_tooltip->size();
     const QSize ws = size();
+    const int margin = 12;
 
-    if (m_currentStep < m_steps.size()) {
-        const QRect& target = m_steps[m_currentStep].targetRect;
-        // Try to position tooltip to the right of the target
-        int x = target.isValid() ? target.right() + 16 : (ws.width() - ts.width()) / 2;
-        int y = target.isValid() ? target.top() : (ws.height() - ts.height()) / 2;
-
-        // Clamp to window bounds (ensure max >= min to avoid qBound assert when window is tiny)
-        x = qBound(8, x, qMax(8, ws.width() - ts.width() - 8));
-        y = qBound(8, y, qMax(8, ws.height() - ts.height() - 8));
-
-        m_tooltip->move(x, y);
-    } else {
+    if (m_currentStep >= m_steps.size()) {
         m_tooltip->move((ws.width() - ts.width()) / 2, (ws.height() - ts.height()) / 2);
+        return;
     }
+
+    const QRect& target = m_steps[m_currentStep].targetRect;
+
+    if (!target.isValid()) {
+        m_tooltip->move((ws.width() - ts.width()) / 2, (ws.height() - ts.height()) / 2);
+        return;
+    }
+
+    // Try positions in priority order: right, left, below, above
+    // and pick the first one that fits fully inside the window.
+    struct Candidate { int x; int y; };
+    const QList<Candidate> candidates = {
+        // Right of target, vertically aligned to target top
+        { target.right() + margin, target.top() },
+        // Left of target
+        { target.left() - ts.width() - margin, target.top() },
+        // Below target, horizontally centred
+        { target.center().x() - ts.width() / 2, target.bottom() + margin },
+        // Above target
+        { target.center().x() - ts.width() / 2, target.top() - ts.height() - margin },
+    };
+
+    for (const auto& c : candidates) {
+        int x = qBound(margin, c.x, ws.width()  - ts.width()  - margin);
+        int y = qBound(margin, c.y, ws.height() - ts.height() - margin);
+        // Accept this candidate if it doesn't overlap the spotlight
+        QRect placed(x, y, ts.width(), ts.height());
+        QRect spotlight = target.adjusted(-6, -6, 6, 6);
+        if (!placed.intersects(spotlight)) {
+            m_tooltip->move(x, y);
+            return;
+        }
+    }
+
+    // Fallback: bottom-right corner
+    m_tooltip->move(
+        qMax(margin, ws.width()  - ts.width()  - margin),
+        qMax(margin, ws.height() - ts.height() - margin)
+    );
 }
 
 void OnboardingOverlay::applyStep()

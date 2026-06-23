@@ -77,11 +77,11 @@ LanguageWizardPage::LanguageWizardPage(QWidget* parent) : BaseWizardPage(parent)
     auto* infoBtn = new QToolButton(footer);
     infoBtn->setObjectName(QStringLiteral("telemetryInfoBtn"));
     infoBtn->setIcon(QIcon::fromTheme(QStringLiteral("help")));
-    infoBtn->setIconSize(QSize(14, 14));
+    infoBtn->setIconSize(QSize(18, 18));
     infoBtn->setToolTip(tr("Learn more about telemetry"));
     infoBtn->setCursor(Qt::PointingHandCursor);
     infoBtn->setAutoRaise(true);
-    infoBtn->setFixedSize(20, 20);
+    infoBtn->setFixedSize(28, 28);
     footerLayout->addWidget(infoBtn);
 
     outer->addWidget(footer);
@@ -95,6 +95,7 @@ LanguageWizardPage::LanguageWizardPage(QWidget* parent) : BaseWizardPage(parent)
     connect(infoBtn, &QToolButton::clicked, this, []() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://halkylauncher.alex1811.ovh/telemetry.html")));
     });
+    m_infoBtn = infoBtn;
 
     retranslate();
 }
@@ -129,6 +130,8 @@ void LanguageWizardPage::retranslate()
         m_telemetryLabel->setText(
             tr("%1 sends anonymous telemetry. <a href=\"disable\">Click here to disable it.</a>")
                 .arg(BuildConfig.LAUNCHER_DISPLAYNAME));
+    if (m_infoBtn)
+        m_infoBtn->setToolTip(tr("Learn more about anonymous telemetry"));
     if (m_langWidget)
         m_langWidget->retranslate();
 }

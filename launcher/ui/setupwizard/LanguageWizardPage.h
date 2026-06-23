@@ -28,4 +28,5 @@ class LanguageWizardPage : public BaseWizardPage {
     QLabel* m_headerTitle = nullptr;
     QLabel* m_headerSubtitle = nullptr;
     QLabel* m_telemetryLabel = nullptr;
+    QToolButton* m_infoBtn = nullptr;
 };
