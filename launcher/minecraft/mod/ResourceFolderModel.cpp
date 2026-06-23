@@ -99,6 +99,8 @@ bool ResourceFolderModel::installResource(QString original_path)
 {
     // NOTE: fix for GH-1178: remove trailing slash to avoid issues with using the empty result of QFileInfo::fileName
     original_path = FS::NormalizePath(original_path);
+    while (original_path.endsWith(u'/') || original_path.endsWith(u'\\'))
+        original_path.chop(1);
     QFileInfo file_info(original_path);
 
     if (!file_info.exists() || !file_info.isReadable()) {
@@ -144,6 +146,8 @@ bool ResourceFolderModel::installResource(QString original_path)
             if (!m_is_watching)
                 return update();
 
+            // QFileSystemWatcher is unreliable on Windows; schedule an update explicitly.
+            m_update_debounce_timer.start();
             return true;
         }
         case ResourceType::FOLDER: {
@@ -163,6 +167,8 @@ bool ResourceFolderModel::installResource(QString original_path)
             if (!m_is_watching)
                 return update();
 
+            // QFileSystemWatcher is unreliable on Windows; schedule an update explicitly.
+            m_update_debounce_timer.start();
             return true;
         }
         default:
