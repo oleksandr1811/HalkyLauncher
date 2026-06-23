@@ -35,7 +35,7 @@ void Telemetry::sendLaunchPing()
 
     const QByteArray body = QJsonDocument(payload).toJson(QJsonDocument::Compact);
 
-    QNetworkRequest req(QUrl(QLatin1StringView(ENDPOINT)));
+    QNetworkRequest req{ QUrl(QLatin1StringView(ENDPOINT)) };
     req.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
     req.setHeader(QNetworkRequest::UserAgentHeader, BuildConfig.USER_AGENT);
 
