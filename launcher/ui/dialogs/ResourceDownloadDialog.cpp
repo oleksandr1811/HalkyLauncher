@@ -270,7 +270,8 @@ void ResourceDownloadDialog::selectedPageChanged(BasePage* previous, BasePage* s
 {
     auto* prev_page = dynamic_cast<ResourcePage*>(previous);
     if (!prev_page) {
-        qCritical() << "Page '" << previous->displayName() << "' in ResourceDownloadDialog is not a ResourcePage!";
+        if (previous)
+            qCritical() << "Page '" << previous->displayName() << "' in ResourceDownloadDialog is not a ResourcePage!";
         return;
     }
 
@@ -296,7 +297,8 @@ QList<BasePage*> ModDownloadDialog::getPages()
 {
     QList<BasePage*> pages;
 
-    auto loaders = static_cast<MinecraftInstance*>(m_instance)->getPackProfile()->getSupportedModLoaders().value();
+    auto loadersOpt = static_cast<MinecraftInstance*>(m_instance)->getPackProfile()->getSupportedModLoaders();
+    auto loaders = loadersOpt.value_or(ModLoaderTypes{});
 
     if (ModrinthAPI::validateModLoaders(loaders))
         pages.append(ModrinthModPage::create(this, *m_instance));

@@ -121,13 +121,24 @@ void InlineResourcePage::updateInstanceCombo()
     for (int i = 0; i < instances->count(); ++i) {
         auto* inst = instances->at(i);
         if (!inst) continue;
+
+        // For the mods browser, only show instances that have a mod loader installed.
+        if (m_mode == BrowseMode::Mods) {
+            auto* mcinst = dynamic_cast<MinecraftInstance*>(inst);
+            if (!mcinst)
+                continue;
+            auto loaders = mcinst->getPackProfile()->getSupportedModLoaders();
+            if (!loaders.has_value() || !loaders.value())
+                continue;
+        }
+
         m_instanceCombo->addItem(inst->name(), inst->id());
         if (inst->id() == prevId)
-            selectIdx = i;
+            selectIdx = m_instanceCombo->count() - 1;
     }
 
     if (m_instanceCombo->count() == 0) {
-        m_instanceCombo->addItem(tr("No instances available"), QString());
+        m_instanceCombo->addItem(tr("No modded instances available"), QString());
         clearBrowser();
         return;
     }
