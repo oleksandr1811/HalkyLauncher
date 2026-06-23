@@ -110,5 +110,5 @@ To compile Halky Launcher by yourself, follow the official [Prism Launcher build
 
 * 🛑 **NO OFFICIAL WEBSITE:** We **DO NOT** have an official website or any other distribution platforms. GitHub is the only trusted place to download Halky Launcher.
 * ⚠️ **NOT AFFILIATED:** We are **NOT** related to, or endorsed by, the official [Prism Launcher](https://prismlauncher.org) or [Freesm Launcher](https://freesmlauncher.org) teams.
-* 🔒 **PRIVACY FRIENDLY:** We **DO NOT** collect any of your personal data or telemetry. Don't trust us? The source code is fully open for your inspection!
+* 🔒 **PRIVACY FRIENDLY:** We **DO NOT** collect any personal data. We only gather **anonymous telemetry** about installs and launches. Don’t trust us? Our source code is fully **open source** and available for inspection!
 * 🎮 **FREE TO PLAY:** Our goal is to provide a fully accessible and clean way to enjoy Minecraft.
