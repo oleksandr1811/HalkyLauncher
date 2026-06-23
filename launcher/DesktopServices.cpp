@@ -33,6 +33,7 @@
  *      limitations under the License.
  */
 #include "DesktopServices.h"
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
@@ -63,6 +64,29 @@ bool run(const QString& application, const QStringList& args, const QString& wor
 bool openUrl(const QUrl& url)
 {
     qDebug() << "Opening URL" << url.toString();
+#ifdef Q_OS_LINUX
+    // On Linux, Qt delegates openUrl() to xdg-open. If the launcher is running
+    // from a portable directory that ships its own xdg-open in bin/, that copy
+    // may not work correctly because it lacks access to system utilities.
+    // Always prefer the system xdg-open found via the original PATH.
+    {
+        // Find xdg-open in the system PATH, skipping the launcher's own bin/.
+        const QString launcherBin = QCoreApplication::applicationDirPath();
+        QStringList searchDirs;
+        const QString pathEnv = qEnvironmentVariable("PATH");
+        for (const QString& dir : pathEnv.split(QLatin1Char(':'), Qt::SkipEmptyParts)) {
+            if (QFileInfo(dir).canonicalFilePath() == QFileInfo(launcherBin).canonicalFilePath())
+                continue;
+            searchDirs << dir;
+        }
+        for (const QString& dir : searchDirs) {
+            const QString candidate = dir + QStringLiteral("/xdg-open");
+            if (QFileInfo::exists(candidate)) {
+                return QProcess::startDetached(candidate, { url.toString() });
+            }
+        }
+    }
+#endif
     return QDesktopServices::openUrl(url);
 }
 
