@@ -16,6 +16,9 @@ jobs:
     runs-on: ubuntu-slim
 
     steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Publish on Winget
         uses: vedantmgoyal2009/winget-releaser@v2
         with:
