@@ -67,12 +67,18 @@ LanguageWizardPage::LanguageWizardPage(QWidget* parent) : BaseWizardPage(parent)
     footerLayout->setContentsMargins(20, 8, 16, 10);
     footerLayout->setSpacing(6);
 
-    m_telemetryLabel = new QLabel(footer);
-    m_telemetryLabel->setObjectName(QStringLiteral("telemetryNotice"));
-    m_telemetryLabel->setCursor(Qt::PointingHandCursor);
-    m_telemetryLabel->setTextFormat(Qt::RichText);
-    m_telemetryLabel->setOpenExternalLinks(false);
-    footerLayout->addWidget(m_telemetryLabel, 1);
+    m_telemetryStatusLabel = new QLabel(footer);
+    m_telemetryStatusLabel->setObjectName(QStringLiteral("telemetryNotice"));
+    m_telemetryStatusLabel->setWordWrap(true);
+    footerLayout->addWidget(m_telemetryStatusLabel, 1);
+
+    m_telemetryToggleBtn = new QToolButton(footer);
+    m_telemetryToggleBtn->setObjectName(QStringLiteral("telemetryToggleBtn"));
+    m_telemetryToggleBtn->setCursor(Qt::PointingHandCursor);
+    m_telemetryToggleBtn->setAutoRaise(false);
+    m_telemetryToggleBtn->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_telemetryToggleBtn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    footerLayout->addWidget(m_telemetryToggleBtn);
 
     auto* infoBtn = new QToolButton(footer);
     infoBtn->setObjectName(QStringLiteral("telemetryInfoBtn"));
@@ -86,10 +92,10 @@ LanguageWizardPage::LanguageWizardPage(QWidget* parent) : BaseWizardPage(parent)
 
     outer->addWidget(footer);
 
-    // Click label → disable telemetry
-    connect(m_telemetryLabel, &QLabel::linkActivated, this, [](const QString&) {
+    connect(m_telemetryToggleBtn, &QToolButton::clicked, this, [this]() {
         APPLICATION->settings()->getOrRegisterSetting(QStringLiteral("TelemetryEnabled"), true);
-        APPLICATION->settings()->set(QStringLiteral("TelemetryEnabled"), false);
+        APPLICATION->settings()->set(QStringLiteral("TelemetryEnabled"), !telemetryEnabled());
+        updateTelemetryNotice();
     });
     // Click info button → open telemetry info page
     connect(infoBtn, &QToolButton::clicked, this, []() {
@@ -118,6 +124,27 @@ bool LanguageWizardPage::validatePage()
     return true;
 }
 
+bool LanguageWizardPage::telemetryEnabled() const
+{
+    APPLICATION->settings()->getOrRegisterSetting(QStringLiteral("TelemetryEnabled"), true);
+    return APPLICATION->settings()->get(QStringLiteral("TelemetryEnabled")).toBool();
+}
+
+void LanguageWizardPage::updateTelemetryNotice()
+{
+    if (!m_telemetryStatusLabel || !m_telemetryToggleBtn)
+        return;
+
+    if (telemetryEnabled()) {
+        m_telemetryStatusLabel->setText(
+            QStringLiteral("%1 sends anonymous telemetry.").arg(BuildConfig.LAUNCHER_DISPLAYNAME));
+        m_telemetryToggleBtn->setText(tr("Disable telemetry"));
+    } else {
+        m_telemetryStatusLabel->setText(tr("Telemetry is disabled."));
+        m_telemetryToggleBtn->setText(tr("Enable telemetry"));
+    }
+}
+
 void LanguageWizardPage::retranslate()
 {
     setTitle(tr("Language"));
@@ -126,10 +153,7 @@ void LanguageWizardPage::retranslate()
         m_headerTitle->setText(tr("Language"));
     if (m_headerSubtitle)
         m_headerSubtitle->setText(tr("Select the language to use in %1").arg(BuildConfig.LAUNCHER_DISPLAYNAME));
-    if (m_telemetryLabel)
-        m_telemetryLabel->setText(
-            QStringLiteral("%1 sends anonymous telemetry. <a href=\"disable\">Click here to disable it.</a>")
-                .arg(BuildConfig.LAUNCHER_DISPLAYNAME));
+    updateTelemetryNotice();
     if (m_infoBtn)
         m_infoBtn->setToolTip(QStringLiteral("Learn more about anonymous telemetry"));
     if (m_langWidget)

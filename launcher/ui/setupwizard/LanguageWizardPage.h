@@ -24,9 +24,13 @@ class LanguageWizardPage : public BaseWizardPage {
     void retranslate() override;
 
    private:
+    bool telemetryEnabled() const;
+    void updateTelemetryNotice();
+
     LanguageSelectionWidget* m_langWidget = nullptr;
     QLabel* m_headerTitle = nullptr;
     QLabel* m_headerSubtitle = nullptr;
-    QLabel* m_telemetryLabel = nullptr;
+    QLabel* m_telemetryStatusLabel = nullptr;
+    QToolButton* m_telemetryToggleBtn = nullptr;
     QToolButton* m_infoBtn = nullptr;
 };
