@@ -298,7 +298,7 @@ QList<BasePage*> ModDownloadDialog::getPages()
     QList<BasePage*> pages;
 
     auto loadersOpt = static_cast<MinecraftInstance*>(m_instance)->getPackProfile()->getSupportedModLoaders();
-    auto loaders = loadersOpt.value_or(ModLoaderTypes{});
+    auto loaders = loadersOpt.value_or(ModPlatform::ModLoaderTypes{});
 
     if (ModrinthAPI::validateModLoaders(loaders))
         pages.append(ModrinthModPage::create(this, *m_instance));
