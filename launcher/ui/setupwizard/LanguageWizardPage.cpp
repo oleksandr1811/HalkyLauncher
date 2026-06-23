@@ -78,7 +78,7 @@ LanguageWizardPage::LanguageWizardPage(QWidget* parent) : BaseWizardPage(parent)
     infoBtn->setObjectName(QStringLiteral("telemetryInfoBtn"));
     infoBtn->setIcon(QIcon::fromTheme(QStringLiteral("help")));
     infoBtn->setIconSize(QSize(18, 18));
-    infoBtn->setToolTip(tr("Learn more about telemetry"));
+    infoBtn->setToolTip(QStringLiteral("Learn more about telemetry"));
     infoBtn->setCursor(Qt::PointingHandCursor);
     infoBtn->setAutoRaise(true);
     infoBtn->setFixedSize(28, 28);
@@ -128,10 +128,10 @@ void LanguageWizardPage::retranslate()
         m_headerSubtitle->setText(tr("Select the language to use in %1").arg(BuildConfig.LAUNCHER_DISPLAYNAME));
     if (m_telemetryLabel)
         m_telemetryLabel->setText(
-            tr("%1 sends anonymous telemetry. <a href=\"disable\">Click here to disable it.</a>")
+            QStringLiteral("%1 sends anonymous telemetry. <a href=\"disable\">Click here to disable it.</a>")
                 .arg(BuildConfig.LAUNCHER_DISPLAYNAME));
     if (m_infoBtn)
-        m_infoBtn->setToolTip(tr("Learn more about anonymous telemetry"));
+        m_infoBtn->setToolTip(QStringLiteral("Learn more about anonymous telemetry"));
     if (m_langWidget)
         m_langWidget->retranslate();
 }
