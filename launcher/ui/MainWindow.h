@@ -53,6 +53,7 @@
 class LaunchController;
 class NewsChecker;
 class QToolButton;
+class QPushButton;
 class InstanceProxyModel;
 class LabeledToolButton;
 class QLabel;
@@ -273,6 +274,7 @@ class MainWindow : public QMainWindow {
     QWidget* m_libraryPage = nullptr;
     QWidget* m_instanceActionBar = nullptr;
     OnboardingOverlay* m_onboarding = nullptr;
+    QPushButton* m_libraryAddBtn = nullptr;  ///< "Add Instance" button in the Library header
     // Inline resource browsers (stack indices 3/4/5)
     InlineResourcePage* m_inlineModsPage = nullptr;
     InlineResourcePage* m_inlineResPacksPage = nullptr;

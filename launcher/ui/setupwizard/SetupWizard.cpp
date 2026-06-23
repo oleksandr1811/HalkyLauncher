@@ -64,12 +64,14 @@ QFrame#wizardPageHeader {
 }
 QLabel#wizardPageTitle {
     color: #cdd6f4;
-    font-size: 17px;
+    font-size: 20px;
     font-weight: bold;
+    background: transparent;
 }
 QLabel#wizardPageSubtitle {
-    color: #a6adc8;
-    font-size: 11px;
+    color: #bac2de;
+    font-size: 13px;
+    background: transparent;
 }
 /* Option cards (AutoJava / Paste pages) */
 QFrame#optionCard {
@@ -137,6 +139,25 @@ QPushButton#flameBtn:hover  { background: #f5a0b5; }
 QPushButton#flameBtn:pressed { background: #e07090; }
 /* Scroll areas */
 QScrollArea { background: transparent; border: none; }
+/* Telemetry notice footer */
+QWidget#telemetryFooter {
+    background: #181825;
+    border-top: 1px solid #313244;
+}
+QLabel#telemetryNotice {
+    color: #6c7086;
+    font-size: 11px;
+    background: transparent;
+}
+QLabel#telemetryNotice a {
+    color: #6c7086;
+    text-decoration: underline;
+}
+QToolButton#telemetryInfoBtn {
+    background: transparent;
+    border: none;
+    color: #6c7086;
+}
 QScrollBar:vertical {
     background: #181825;
     width: 6px;

@@ -710,6 +710,11 @@ set(DISCORD_SOURCES
     discord/RunningInstance.h
 )
 
+set(TELEMETRY_SOURCES
+    telemetry/Telemetry.h
+    telemetry/Telemetry.cpp
+)
+
 if (WIN32)
     set(PRISMUPDATER_SOURCES
         console/WindowsConsole.h
@@ -826,6 +831,7 @@ set(LOGIC_SOURCES
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
     ${DISCORD_SOURCES}
+    ${TELEMETRY_SOURCES}
 )
 
 if(APPLE AND Launcher_ENABLE_UPDATER)

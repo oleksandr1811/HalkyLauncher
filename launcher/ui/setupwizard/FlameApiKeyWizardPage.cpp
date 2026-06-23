@@ -32,15 +32,14 @@ FlameAPIKeyWizardPage::FlameAPIKeyWizardPage(QWidget* parent) : BaseWizardPage(p
     header->setObjectName(QStringLiteral("wizardPageHeader"));
     header->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     auto* hLayout = new QHBoxLayout(header);
-    hLayout->setContentsMargins(24, 18, 24, 18);
-    hLayout->setSpacing(16);
+    hLayout->setContentsMargins(28, 20, 28, 20);
+    hLayout->setSpacing(20);
     auto* iconLabel = new QLabel(header);
-    iconLabel->setFixedSize(48, 48);
-    iconLabel->setPixmap(
-        QIcon::fromTheme(QStringLiteral("download"), QIcon::fromTheme(QStringLiteral("applications-internet"))).pixmap(48, 48));
+    iconLabel->setFixedSize(52, 52);
+    iconLabel->setPixmap(QIcon::fromTheme(QStringLiteral("new")).pixmap(52, 52));
     hLayout->addWidget(iconLabel);
     auto* textBox = new QVBoxLayout();
-    textBox->setSpacing(4);
+    textBox->setSpacing(6);
     m_headerTitle = new QLabel(header);
     m_headerTitle->setObjectName(QStringLiteral("wizardPageTitle"));
     m_headerSubtitle = new QLabel(header);

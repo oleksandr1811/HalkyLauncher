@@ -129,6 +129,8 @@
 
 #include "discord/DiscordIntegration.h"
 
+#include "telemetry/Telemetry.h"
+
 #include <DesktopServices.h>
 #include <FileSystem.h>
 #include <LocalPeer.h>
@@ -1374,6 +1376,10 @@ void Application::setupWizardFinished(int status)
 void Application::performMainStartupAction()
 {
     m_status = Application::Initialized;
+
+    // Send anonymous launch ping (respects opt-out)
+    Telemetry* telemetry = new Telemetry(this);
+    telemetry->sendLaunchPing();
     if (!m_instanceIdToLaunch.isEmpty()) {
         auto inst = instances()->getInstanceById(m_instanceIdToLaunch);
         if (inst) {

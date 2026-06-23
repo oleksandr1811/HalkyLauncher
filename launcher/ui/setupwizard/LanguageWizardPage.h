@@ -3,6 +3,7 @@
 #include "BaseWizardPage.h"
 
 #include <QLabel>
+#include <QToolButton>
 
 class LanguageSelectionWidget;
 
@@ -26,4 +27,5 @@ class LanguageWizardPage : public BaseWizardPage {
     LanguageSelectionWidget* m_langWidget = nullptr;
     QLabel* m_headerTitle = nullptr;
     QLabel* m_headerSubtitle = nullptr;
+    QLabel* m_telemetryLabel = nullptr;
 };

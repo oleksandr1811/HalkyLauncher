@@ -575,6 +575,7 @@ void MainWindow::buildNewLayout()
         addInstBtn->setFixedHeight(36);
         connect(addInstBtn, &QPushButton::clicked, this, &MainWindow::on_actionAddInstance_triggered);
         libHeaderLayout->addWidget(addInstBtn);
+        m_libraryAddBtn = addInstBtn;
 
         libLayout->addWidget(libHeader);
 
@@ -885,37 +886,57 @@ void MainWindow::setupOnboarding()
 
     m_onboarding = new OnboardingOverlay(ui->centralWidget);
 
-    QList<OnboardingOverlay::Step> steps;
+    // Defer building steps until after the first paint, so all geometry() calls
+    // return real coordinates (layout is resolved after the first showEvent).
+    QTimer::singleShot(0, this, [this]() {
+        if (!m_onboarding)
+            return;
 
-    steps.append({ tr("Navigation Sidebar"),
-                   tr("Use the sidebar on the left to switch between your Library, browse Modpacks, "
-                      "Mods, Resource Packs and Shaders. Click the ☰ button at the top to expand labels."),
-                   m_navBar ? m_navBar->geometry() : QRect() });
+        QWidget* base = ui->centralWidget;
 
-    steps.append({ tr("Add Instance"),
-                   tr("Click the + button in the sidebar or use the '+ Add Instance' button in the Library "
-                      "to create a new Minecraft instance."),
-                   QRect() });
+        // Helper: map a widget's visible rect into centralWidget coords.
+        auto widgetRect = [&](QWidget* w) -> QRect {
+            if (!w || !w->isVisible())
+                return QRect();
+            return QRect(w->mapTo(base, QPoint(0, 0)), w->size());
+        };
 
-    steps.append({ tr("Your Library"),
-                   tr("The Library shows all your Minecraft instances. Double-click one to launch it, "
-                      "or select it for more options."),
-                   m_libraryPage ? m_libraryPage->geometry() : QRect() });
+        QList<OnboardingOverlay::Step> steps;
 
-    steps.append({ tr("News"),
-                   tr("The News panel on the right shows the latest Halky Launcher updates and announcements."),
-                   m_newsPanel ? m_newsPanel->geometry() : QRect() });
+        // Step 1 — Navigation sidebar (the whole navBar)
+        steps.append({ tr("Navigation Sidebar"),
+                       tr("Use the sidebar on the left to switch between your Library, browse Modpacks, "
+                          "Mods, Resource Packs and Shaders. Click the ☰ button at the top to expand labels."),
+                       widgetRect(m_navBar) });
 
-    m_onboarding->setSteps(steps);
+        // Step 2 — Add Instance button in the Library header
+        steps.append({ tr("Add Instance"),
+                       tr("Click the '+ Add Instance' button here (or the + button in the sidebar) "
+                          "to create a new Minecraft instance."),
+                       widgetRect(m_libraryAddBtn) });
+
+        // Step 3 — Library page (the whole center stack area while on Library)
+        steps.append({ tr("Your Library"),
+                       tr("The Library shows all your Minecraft instances. Double-click one to launch it, "
+                          "or select it for more options."),
+                       widgetRect(m_mainStack) });
+
+        // Step 4 — News panel
+        steps.append({ tr("News"),
+                       tr("The News panel on the right shows the latest Halky Launcher updates and announcements."),
+                       widgetRect(m_newsPanel) });
+
+        m_onboarding->setSteps(steps);
+        m_onboarding->resize(base->size());
+        m_onboarding->show();
+        m_onboarding->raise();
+    });
+
     connect(m_onboarding, &OnboardingOverlay::finished, this, [this]() {
         APPLICATION->settings()->set("OnboardingShown", true);
         m_onboarding->deleteLater();
         m_onboarding = nullptr;
     });
-
-    m_onboarding->resize(ui->centralWidget->size());
-    m_onboarding->show();
-    m_onboarding->raise();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
