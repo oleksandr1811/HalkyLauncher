@@ -52,8 +52,10 @@ ResourceFolderModel::ResourceFolderModel(const QDir& dir, BaseInstance* instance
 
 ResourceFolderModel::~ResourceFolderModel()
 {
+#if !defined(__MINGW32__) && !defined(__MINGW64__)
     while (!QThreadPool::globalInstance()->waitForDone(100))
         QCoreApplication::processEvents();
+#endif
 }
 
 bool ResourceFolderModel::startWatching(const QStringList& paths)
