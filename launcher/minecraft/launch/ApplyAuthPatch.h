@@ -18,17 +18,31 @@
 
 #pragma once
 
+#include <QString>
+#include <optional>
+
 #include "ApplyLibraryOverride.h"
 
-class ApplyAuthlibInjector : public ApplyLibraryOverride {
+class ApplyAuthPatch : public ApplyLibraryOverride {
     Q_OBJECT
    public:
-    explicit ApplyAuthlibInjector(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
-    ~ApplyAuthlibInjector() override;
+    enum class Stage { Ely, Injector };
+
+    explicit ApplyAuthPatch(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode, Stage stage);
+    ~ApplyAuthPatch() override;
 
    protected:
     void executeTask() override;
 
    protected slots:
     void onMetaRequestDone(const Meta::VersionList::Ptr& versionList) override;
+    void apply(const Meta::Version::Ptr& version) override;
+
+   private:
+    void executeEly();
+    void executeInjector();
+
+    Stage m_stage;
+    QString m_decidedInjectorUid;
+    std::optional<QString> m_decidedInjectorVersion;
 };

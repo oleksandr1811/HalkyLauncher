@@ -18,22 +18,18 @@
 
 #pragma once
 
-#include "minecraft/launch/ApplyLibraryOverride.h"
+#include <QString>
+#include <vector>
 
-class ApplyElyPatch : public ApplyLibraryOverride {
-    Q_OBJECT
-   public:
-    explicit ApplyElyPatch(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
-    ~ApplyElyPatch() override;
-
-   protected:
-    void executeTask() override;
-
-   protected slots:
-    void onMetaRequestDone(const Meta::VersionList::Ptr& versionList) override;
-    void apply(const Meta::Version::Ptr& version) override;
-
-private:
-    void applyAuthlibInjector();
-    bool m_fallbackToAuthlibInjector = false;
+namespace Injectors {
+struct KnownJavaAgent {
+    QString uid;
+    QString prefix;
+    QString name;
 };
+
+const std::vector<KnownJavaAgent>& getJavaAgents();
+const KnownJavaAgent* findByUid(const QString& uid);
+const KnownJavaAgent* findByPrefix(const QString& prefix);
+const KnownJavaAgent& fallback();
+}  // namespace Injectors
