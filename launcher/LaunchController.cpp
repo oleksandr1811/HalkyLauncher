@@ -41,6 +41,7 @@
 #include "minecraft/auth/AccountList.h"
 
 #include "ui/InstanceWindow.h"
+#include "net/NetUtils.h"
 #include "ui/dialogs/CustomLoginDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ElybyLoginDialog.h"
@@ -187,8 +188,16 @@ LaunchDecision LaunchController::decideLaunchMode()
         case AccountState::Offline: {
             if (m_wantedLaunchMode == LaunchMode::Normal) {
                 QMessageBox msg(m_parentWidget);
-                msg.setWindowTitle(tr("Auth servers offline"));
-                msg.setText(tr("The Minecraft authentication servers are currently unavailable."));
+
+                auto netErr = accountToCheck->accountData()->networkError;
+                if (Net::isServerError(netErr)) {
+                    msg.setWindowTitle(tr("Auth servers offline"));
+                    msg.setText(tr("The Minecraft authentication servers are currently unavailable.\n\n%1").arg(accountToCheck->lastError()));
+                } else {
+                    msg.setWindowTitle(tr("No internet connection"));
+                    msg.setText(tr("Unable to connect to the internet.\n\n%1").arg(accountToCheck->lastError()));
+                }
+
                 msg.setIcon(QMessageBox::Warning);
 
                 auto* launchOfflineButton = msg.addButton(tr("Launch Offline"), QMessageBox::AcceptRole);
