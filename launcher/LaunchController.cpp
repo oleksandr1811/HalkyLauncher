@@ -336,7 +336,6 @@ bool LaunchController::reauthenticateAccount(const MinecraftAccountPtr& account,
         auto* accounts = APPLICATION->accounts();
         const bool isDefault = accounts->defaultAccount() == account;
         const auto accountType = account->accountType();
-        accounts->removeAccount(accounts->index(accounts->findAccountById(AccountIdentifier{ *account }).index));
         MinecraftAccountPtr newAccount;
         switch (accountType) {
             case AccountType::MSA:
@@ -353,6 +352,8 @@ bool LaunchController::reauthenticateAccount(const MinecraftAccountPtr& account,
         }
 
         if (newAccount != nullptr) {
+            // Only drop the old account once the replacement actually exists
+            accounts->removeAccount(accounts->index(accounts->findAccountById(AccountIdentifier{ *account }).index));
             accounts->addAccount(newAccount);
 
             if (isDefault) {
