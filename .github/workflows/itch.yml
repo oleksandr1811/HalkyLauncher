@@ -26,19 +26,34 @@ jobs:
       ITCH_USER: halkylauncher
 
     steps:
-      - name: Download release assets
+      - name: Resolve release tag & download assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release download "${{ env.VERSION }}" \
+          # Видаляємо файли минулого релізу
+          rm -rf release-assets push
+
+          TAG="${{ env.VERSION }}"
+          # Нормалізуємо тег: пробуємо як є, з "v", і без "v"
+          for CANDIDATE in "$TAG" "v${TAG}" "${TAG#v}"; do
+            if gh release view "$CANDIDATE" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              echo "Found release tag: $CANDIDATE"
+              echo "RELEASE_TAG=$CANDIDATE" >> "$GITHUB_ENV"
+              break
+            fi
+          done
+
+          test -n "${RELEASE_TAG}" || { echo "::error::Release not found for tag '$TAG'"; exit 1; }
+          gh release download "${RELEASE_TAG}" \
             --repo "${{ github.repository }}" \
-            --dir release-assets
+            --dir release-assets \
+            --clobber
 
       # ── Windows MSVC (x64 Setup) ────────────────────────────────────────────
       - name: Prepare Windows MSVC
         run: |
           mkdir -p push/windows-msvc
-          cp release-assets/HalkyLauncher-Windows-MSVC-Setup-${{ env.VERSION }}.exe \
+          cp release-assets/HalkyLauncher-Windows-MSVC-Setup-${{ env.RELEASE_TAG }}.exe \
              push/windows-msvc/
 
       # ── Linux AppImage (x86_64) ─────────────────────────────────────────────
@@ -52,14 +67,14 @@ jobs:
       - name: Prepare macOS
         run: |
           mkdir -p push/macos
-          cp release-assets/HalkyLauncher-macOS-${{ env.VERSION }}.zip \
+          cp release-assets/HalkyLauncher-macOS-${{ env.RELEASE_TAG }}.zip \
              push/macos/
 
       # ── Install butler ──────────────────────────────────────────────────────
       - name: Install butler
         run: |
           curl -L -o butler.zip \
-            "https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default"
+            "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default"
           unzip butler.zip
           chmod +x butler
           ./butler -V
@@ -71,7 +86,7 @@ jobs:
         run: |
           ./butler push push/windows-msvc \
             "${{ env.ITCH_USER }}/${{ env.ITCH_GAME }}:windows-msvc" \
-            --userversion "${{ env.VERSION }}"
+            --userversion "${{ env.RELEASE_TAG }}"
 
       - name: Push Linux AppImage to itch.io
         env:
@@ -79,7 +94,7 @@ jobs:
         run: |
           ./butler push push/linux-appimage \
             "${{ env.ITCH_USER }}/${{ env.ITCH_GAME }}:linux-appimage" \
-            --userversion "${{ env.VERSION }}"
+            --userversion "${{ env.RELEASE_TAG }}"
 
       - name: Push macOS to itch.io
         env:
@@ -87,4 +102,4 @@ jobs:
         run: |
           ./butler push push/macos \
             "${{ env.ITCH_USER }}/${{ env.ITCH_GAME }}:osx" \
-            --userversion "${{ env.VERSION }}"
+            --userversion "${{ env.RELEASE_TAG }}"
