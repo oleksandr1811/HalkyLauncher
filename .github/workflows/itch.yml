@@ -34,17 +34,19 @@ jobs:
           rm -rf release-assets push
 
           TAG="${{ env.VERSION }}"
+          RELEASE_TAG=""
           # Нормалізуємо тег: пробуємо як є, з "v", і без "v"
           for CANDIDATE in "$TAG" "v${TAG}" "${TAG#v}"; do
             if gh release view "$CANDIDATE" --repo "${{ github.repository }}" >/dev/null 2>&1; then
               echo "Found release tag: $CANDIDATE"
+              RELEASE_TAG="$CANDIDATE"
               echo "RELEASE_TAG=$CANDIDATE" >> "$GITHUB_ENV"
               break
             fi
           done
 
-          test -n "${RELEASE_TAG}" || { echo "::error::Release not found for tag '$TAG'"; exit 1; }
-          gh release download "${RELEASE_TAG}" \
+          test -n "$RELEASE_TAG" || { echo "::error::Release not found for tag '$TAG'"; exit 1; }
+          gh release download "$RELEASE_TAG" \
             --repo "${{ github.repository }}" \
             --dir release-assets \
             --clobber
