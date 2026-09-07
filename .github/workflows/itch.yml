@@ -1,0 +1,84 @@
+name: Publish to itch.io
+
+on:
+  release:
+    types: [ released ]
+
+permissions: { }
+
+jobs:
+  itch:
+    name: Push to itch.io via butler
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    env:
+      VERSION: ${{ github.event.release.tag_name }}
+      ITCH_GAME: halkylauncher
+      ITCH_USER: halkylauncher
+
+    steps:
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download "${{ env.VERSION }}" \
+            --repo "${{ github.repository }}" \
+            --dir release-assets
+
+      # ── Windows MSVC (x64 Setup) ────────────────────────────────────────────
+      - name: Prepare Windows MSVC
+        run: |
+          mkdir -p push/windows-msvc
+          cp release-assets/HalkyLauncher-Windows-MSVC-Setup-${{ env.VERSION }}.exe \
+             push/windows-msvc/
+
+      # ── Linux AppImage (x86_64) ─────────────────────────────────────────────
+      - name: Prepare Linux AppImage x86_64
+        run: |
+          mkdir -p push/linux-appimage
+          cp release-assets/HalkyLauncher-Linux-x86_64.AppImage \
+             push/linux-appimage/
+
+      # ── macOS ───────────────────────────────────────────────────────────────
+      - name: Prepare macOS
+        run: |
+          mkdir -p push/macos
+          cp release-assets/HalkyLauncher-macOS-${{ env.VERSION }}.zip \
+             push/macos/
+
+      # ── Install butler ──────────────────────────────────────────────────────
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip \
+            "https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default"
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+
+      # ── Push all channels ───────────────────────────────────────────────────
+      - name: Push Windows MSVC to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          ./butler push push/windows-msvc \
+            "${{ env.ITCH_USER }}/${{ env.ITCH_GAME }}:windows-msvc" \
+            --userversion "${{ env.VERSION }}"
+
+      - name: Push Linux AppImage to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          ./butler push push/linux-appimage \
+            "${{ env.ITCH_USER }}/${{ env.ITCH_GAME }}:linux-appimage" \
+            --userversion "${{ env.VERSION }}"
+
+      - name: Push macOS to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          ./butler push push/macos \
+            "${{ env.ITCH_USER }}/${{ env.ITCH_GAME }}:osx" \
+            --userversion "${{ env.VERSION }}"
