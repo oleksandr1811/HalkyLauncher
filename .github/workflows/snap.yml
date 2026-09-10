@@ -44,8 +44,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v6
+        # Беремо код з поточної гілки, де є snap/snapcraft.yaml
         with:
-          ref: ${{ env.RESOLVED_REF || github.event.release.tag_name || github.ref }}
+          ref: ${{ github.ref }}
 
       - name: Build snap
         id: build
