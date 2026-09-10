@@ -59,7 +59,11 @@ jobs:
           sudo usermod --append --groups lxd $USER
           newgrp lxd
 
-          sg lxd -c "snapcraft"
+          # Fix LXD networking in GitHub Actions
+          sudo iptables -P FORWARD ACCEPT
+
+          # Build snap (sg keeps the group change)
+          sg lxd -c "snapcraft pack"
 
           sudo chmod a+rw *.snap
 
