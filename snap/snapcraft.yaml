@@ -68,14 +68,22 @@ parts:
       - qt6-base-dev-tools
       - qt6-networkauth-dev
     stage-packages:
-      - qt6-base
-      - qt6-networkauth
-      - qt6-imageformats
+      - libqt6core6
+      - libqt6gui6
+      - libqt6widgets6
+      - libqt6network6
+      - libqt6opengl6
+      - libqt6openglwidgets6
+      - libqt6xml6
+      - libqt6dbus6
+      - libqt6concurrent6
+      - libqt6networkauth6
+      - qt6-image-formats-plugins
       - qt6-qpa-plugins
-      - libcmark0.30.3
+      - libcmark0.30.2
       - libgamemode0
       - libarchive13t64
-      - libqrencode1
+      - libqrencode4
       - libtomlplusplus3t64
       - zlib1g
     organize:
