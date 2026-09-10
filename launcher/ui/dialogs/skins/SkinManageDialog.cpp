@@ -45,6 +45,7 @@
 #include "minecraft/skins/SkinList.h"
 #include "minecraft/skins/SkinModel.h"
 #include "minecraft/skins/SkinUpload.h"
+#include "minecraft/skins/ElySkinChange.h"
 
 #include "net/Download.h"
 #include "net/NetJob.h"
@@ -106,6 +107,11 @@ SkinManageDialog::SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct)
     });
 
     setupCapes();
+
+    // Hide cape controls for ely.by accounts (not supported)
+    if (m_acct->accountType() == AccountType::Elyby) {
+        m_ui->capeBox->setVisible(false);
+    }
 
     m_ui->listView->setCurrentIndex(m_list.index(m_list.getSelectedAccountSkin()));
 
@@ -309,11 +315,15 @@ void SkinManageDialog::accept()
         return;
     }
 
-    skinUpload->addNetAction(SkinUpload::make(m_acct->accessToken(), skin->getPath(), skin->getModelString()));
+    if (m_acct->accountType() == AccountType::Elyby) {
+        skinUpload->addNetAction(ElySkinChange::make(m_acct->accessToken(), skin->getPath()));
+    } else {
+        skinUpload->addNetAction(SkinUpload::make(m_acct->accessToken(), skin->getPath(), skin->getModelString()));
 
-    auto selectedCape = skin->getCapeId();
-    if (selectedCape != m_acct->accountData()->minecraftProfile.currentCape) {
-        skinUpload->addNetAction(CapeChange::make(m_acct->accessToken(), selectedCape));
+        auto selectedCape = skin->getCapeId();
+        if (selectedCape != m_acct->accountData()->minecraftProfile.currentCape) {
+            skinUpload->addNetAction(CapeChange::make(m_acct->accessToken(), selectedCape));
+        }
     }
 
     skinUpload->addTask(m_acct->refresh().staticCast<Task>());
@@ -328,6 +338,14 @@ void SkinManageDialog::accept()
 
 void SkinManageDialog::on_resetBtn_clicked()
 {
+    if (m_acct->accountType() == AccountType::Elyby) {
+        CustomMessageBox::selectable(this, tr("Reset Skin"),
+                                     tr("Skin reset is not supported for ely.by accounts. Please upload a new skin instead."),
+                                     QMessageBox::Information)
+            ->exec();
+        return;
+    }
+
     ProgressDialog prog(this);
     NetJob::Ptr skinReset{ new NetJob(tr("Reset skin"), APPLICATION->network(), 1) };
     skinReset->addNetAction(SkinDelete::make(m_acct->accessToken()));

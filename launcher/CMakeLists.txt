@@ -410,6 +410,8 @@ set(MINECRAFT_SOURCES
     minecraft/skins/SkinUpload.h
     minecraft/skins/SkinDelete.cpp
     minecraft/skins/SkinDelete.h
+    minecraft/skins/ElySkinChange.cpp
+    minecraft/skins/ElySkinChange.h
     minecraft/skins/SkinModel.cpp
     minecraft/skins/SkinModel.h
     minecraft/skins/SkinList.cpp
