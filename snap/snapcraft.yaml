@@ -34,9 +34,7 @@ apps:
       - gamepad-raw
       - hardware-observe
     environment:
-      # Вказуємо Qt де шукати плагіни всередині snap (див. organize нижче)
       QT_PLUGIN_PATH: $SNAP/qt-plugins
-      # Використовуємо портали для вибору файлів, як у AppImage
       QT_QPA_PLATFORMTHEME: xdgdesktopportal
 
 parts:
