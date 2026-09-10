@@ -58,8 +58,7 @@ jobs:
           sudo usermod --append --groups lxd $USER
           newgrp lxd
 
-          # Pass project path explicitly
-          sg lxd -c "snapcraft pack --project-path=snap"
+          sg lxd -c "snapcraft"
 
           sudo chmod a+rw *.snap
 
