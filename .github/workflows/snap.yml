@@ -50,6 +50,8 @@ jobs:
       - name: Build snap
         uses: snapcore/action-build@v1
         id: build
+        with:
+          path: .
 
       - name: Get built snap file name
         id: snap-file
