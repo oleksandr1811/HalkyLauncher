@@ -57,7 +57,7 @@ parts:
       - git
       - default-jdk
       - libcmark-dev
-      - libgamemode-dev
+      - gamemode-dev
       - libarchive-dev
       - libqrencode-dev
       - zlib1g-dev
