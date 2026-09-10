@@ -1,0 +1,92 @@
+name: halkylauncher
+base: core24
+version: '1.0.4'
+summary: A custom launcher for Minecraft
+description: |
+  Halky Launcher is a custom launcher for Minecraft that focuses on
+  predictability, long term stability and simplicity. Easily manage multiple
+  Minecraft installations, install mods and modpacks, and control your Java
+  settings.
+confinement: strict
+grade: stable
+icon: program_info/org.HalkyLauncher.HalkyLauncher.svg
+
+adopt-info: halkylauncher
+
+apps:
+  halkylauncher:
+    command: usr/bin/HalkyLauncher
+    desktop: usr/share/applications/org.HalkyLauncher.HalkyLauncher.desktop
+    common-id: org.HalkyLauncher.HalkyLauncher
+    plugs:
+      - home
+      - network
+      - network-bind
+      - opengl
+      - audio-playback
+      - joystick
+      - removable-media
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - gamepad-raw
+      - hardware-observe
+    environment:
+      # Вказуємо Qt де шукати плагіни всередині snap (див. organize нижче)
+      QT_PLUGIN_PATH: $SNAP/qt-plugins
+      # Використовуємо портали для вибору файлів, як у AppImage
+      QT_QPA_PLATFORMTHEME: xdgdesktopportal
+
+parts:
+  halkylauncher:
+    source: .
+    plugin: cmake
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DLauncher_ENABLE_JAVA_DOWNLOADER=ON
+      - -DLauncher_BUILD_PLATFORM=snap
+      - -DLauncher_QT_VERSION_MAJOR=6
+    build-packages:
+      - ninja-build
+      - extra-cmake-modules
+      - pkg-config
+      - scdoc
+      - git
+      - default-jdk
+      - libcmark-dev
+      - libgamemode-dev
+      - libarchive-dev
+      - libqrencode-dev
+      - zlib1g-dev
+      - libxcb-cursor-dev
+      - libtomlplusplus-dev
+      - libgl1-mesa-dev
+      - qt6-base-dev
+      - qt6-base-dev-tools
+      - qt6-networkauth-dev
+    stage-packages:
+      - qt6-base
+      - qt6-networkauth
+      - qt6-imageformats
+      - qt6-qpa-plugins
+      - libcmark0.30.3
+      - libgamemode0
+      - libarchive13t64
+      - libqrencode1
+      - libtomlplusplus3t64
+      - zlib1g
+    organize:
+      usr/lib/*/qt6/plugins: qt-plugins
+    parse-info:
+      - usr/share/metainfo/org.HalkyLauncher.HalkyLauncher.metainfo.xml
+    override-build: |
+      # Версія береться з CMakeLists.txt (джерело правди), щоб працювало і з v, і без v
+      MAJOR=$(grep -m1 'set(Launcher_VERSION_MAJOR' CMakeLists.txt | grep -oE '[0-9]+')
+      MINOR=$(grep -m1 'set(Launcher_VERSION_MINOR' CMakeLists.txt | grep -oE '[0-9]+')
+      PATCH=$(grep -m1 'set(Launcher_VERSION_PATCH' CMakeLists.txt | grep -oE '[0-9]+')
+      craftctl set version="$MAJOR.$MINOR.$PATCH"
+
+      craftctl default

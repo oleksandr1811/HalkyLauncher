@@ -1,0 +1,72 @@
+name: Publish to Snap Store
+
+on:
+  release:
+    types: [ released ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (e.g. v1.2.3)"
+        required: true
+        type: string
+
+permissions: { }
+
+jobs:
+  snap:
+    name: Build & push snap to Snap Store
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    env:
+      VERSION: ${{ github.event.release.tag_name || inputs.tag }}
+
+    steps:
+      - name: Resolve release tag
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ env.VERSION }}"
+          REF=""
+          # Нормалізуємо тег: пробуємо як є, з "v", і без "v"
+          for CANDIDATE in "$TAG" "v${TAG}" "${TAG#v}"; do
+            if gh release view "$CANDIDATE" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+              echo "Found release tag: $CANDIDATE"
+              REF="$CANDIDATE"
+              break
+            fi
+          done
+          test -n "$REF" || { echo "::error::Release not found for tag '$TAG'"; exit 1; }
+          echo "RESOLVED_REF=$REF" >> "$GITHUB_ENV"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RESOLVED_REF || github.event.release.tag_name || github.ref }}
+
+      - name: Build snap
+        uses: snapcore/action-build@v1
+        id: build
+
+      - name: Get built snap file name
+        id: snap-file
+        run: |
+          SNAP_FILE=$(ls -1 *.snap | head -n1)
+          echo "snap=$SNAP_FILE" >> "$GITHUB_OUTPUT"
+          echo "Built snap: $SNAP_FILE"
+
+      - name: Review snap
+        run: |
+          sudo snap install review-tools
+          review-tools-snap-review "${{ steps.snap-file.outputs.snap }}"
+
+      - name: Publish snap to Snap Store
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.snap-file.outputs.snap }}
+          release: stable
