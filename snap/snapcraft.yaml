@@ -91,10 +91,9 @@ parts:
     parse-info:
       - usr/share/metainfo/org.HalkyLauncher.HalkyLauncher.metainfo.xml
     override-build: |
-      # Версія береться з CMakeLists.txt (джерело правди), щоб працювало і з v, і без v
-      MAJOR=$(grep -m1 'set(Launcher_VERSION_MAJOR' CMakeLists.txt | grep -oE '[0-9]+')
-      MINOR=$(grep -m1 'set(Launcher_VERSION_MINOR' CMakeLists.txt | grep -oE '[0-9]+')
-      PATCH=$(grep -m1 'set(Launcher_VERSION_PATCH' CMakeLists.txt | grep -oE '[0-9]+')
+      MAJOR=$(grep -m1 'set(Launcher_VERSION_MAJOR' $CRAFT_PART_SRC/CMakeLists.txt | grep -oE '[0-9]+')
+      MINOR=$(grep -m1 'set(Launcher_VERSION_MINOR' $CRAFT_PART_SRC/CMakeLists.txt | grep -oE '[0-9]+')
+      PATCH=$(grep -m1 'set(Launcher_VERSION_PATCH' $CRAFT_PART_SRC/CMakeLists.txt | grep -oE '[0-9]+')
       craftctl set version="$MAJOR.$MINOR.$PATCH"
 
       craftctl default
