@@ -55,11 +55,13 @@ parts:
       - git
       - default-jdk
       - libcmark-dev
+      - cmark
       - gamemode-dev
       - libarchive-dev
       - libqrencode-dev
       - zlib1g-dev
       - libxcb-cursor-dev
+      - libxkbcommon-dev
       - libtomlplusplus-dev
       - libgl1-mesa-dev
       - qt6-base-dev
