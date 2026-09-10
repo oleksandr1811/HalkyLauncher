@@ -48,10 +48,23 @@ jobs:
           ref: ${{ env.RESOLVED_REF || github.event.release.tag_name || github.ref }}
 
       - name: Build snap
-        uses: snapcore/action-build@v1
         id: build
-        with:
-          path: .
+        run: |
+          # Встановлюємо Snapcraft та LXD
+          sudo snap install snapcraft --classic
+          sudo snap install lxd
+          sudo lxd init --auto
+
+          # Додаємо runner до групи lxd
+          sudo groupadd --force --system lxd
+          sudo usermod --append --groups lxd $USER
+          newgrp lxd
+
+          # Будуємо snap
+          sg lxd -c "snapcraft pack"
+
+          # Даємо права на створений snap файл, бо він міг збудуватися як інший юзер
+          sudo chmod a+rw *.snap
 
       - name: Get built snap file name
         id: snap-file
