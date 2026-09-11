@@ -9,7 +9,6 @@
 #include <QFrame>
 #include <QLabel>
 #include <QList>
-#include <QVariantAnimation>
 #include <QToolButton>
 
 class QVBoxLayout;
@@ -77,7 +76,6 @@ class HalkyNavBar : public QFrame {
 
     Page m_currentPage = HomePage;
     bool m_expanded = false;
-    QVariantAnimation* m_animation = nullptr;
 
     static constexpr int COLLAPSED_W = 62;
     static constexpr int EXPANDED_W = 220;

@@ -1,0 +1,18 @@
+--- launcher/ui/widgets/HalkyNavBar.h
++++ launcher/ui/widgets/HalkyNavBar.h
+@@ -10,6 +10,7 @@
+ #include <QFrame>
+ #include <QLabel>
+ #include <QList>
++#include <QVariantAnimation>
+ #include <QToolButton>
+ 
+ class QVBoxLayout;
+@@ -70,6 +71,7 @@
+ 
+     Page m_currentPage = HomePage;
+     bool m_expanded = false;
++    QVariantAnimation* m_animation = nullptr;
+ 
+     static constexpr int COLLAPSED_W = 62;
+     static constexpr int EXPANDED_W = 220;
