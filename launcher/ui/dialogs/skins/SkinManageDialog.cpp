@@ -316,7 +316,7 @@ void SkinManageDialog::accept()
     }
 
     if (m_acct->accountType() == AccountType::Elyby) {
-        skinUpload->addNetAction(ElySkinChange::make(m_acct->accessToken(), skin->getPath()));
+        skinUpload->addTask(ElySkinChange::make(m_acct->accessToken(), skin->getPath()));
     } else {
         skinUpload->addNetAction(SkinUpload::make(m_acct->accessToken(), skin->getPath(), skin->getModelString()));
 
