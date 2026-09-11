@@ -14,6 +14,8 @@
 #include <QPainterPath>
 #include <QPen>
 #include <QPolygonF>
+#include <QVariantAnimation>
+#include <QAbstractAnimation>
 #include <QSizePolicy>
 #include <QVBoxLayout>
 
@@ -119,6 +121,27 @@ HalkyNavBar::HalkyNavBar(QWidget* parent) : QFrame(parent)
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     setFrameShape(QFrame::NoFrame);
     buildLayout();
+
+    m_animation = new QVariantAnimation(this);
+    m_animation->setDuration(250);
+    m_animation->setEasingCurve(QEasingCurve::InOutQuad);
+    connect(m_animation, &QVariantAnimation::valueChanged, this, [this](const QVariant& value) {
+        this->setFixedWidth(value.toInt());
+    });
+    connect(m_animation, &QVariantAnimation::finished, this, [this]() {
+        if (!m_expanded) {
+            m_launcherLabel->setVisible(false);
+            const auto style = Qt::ToolButtonIconOnly;
+            for (auto& item : m_navItems) {
+                item.btn->setToolButtonStyle(style);
+            }
+            m_addBtn->setToolButtonStyle(style);
+            m_accountsBtn->setToolButtonStyle(style);
+            m_foldersBtn->setToolButtonStyle(style);
+            m_settingsBtn->setToolButtonStyle(style);
+            m_helpBtn->setToolButtonStyle(style);
+        }
+    });
 }
 
 // ── Layout builder ────────────────────────────────────────────────────────────
@@ -215,10 +238,20 @@ void HalkyNavBar::buildLayout()
 void HalkyNavBar::toggleExpand()
 {
     m_expanded = !m_expanded;
-    const auto style = m_expanded ? Qt::ToolButtonTextBesideIcon : Qt::ToolButtonIconOnly;
 
-    // Header: show/hide launcher name label
-    m_launcherLabel->setVisible(m_expanded);
+    if (m_animation->state() == QAbstractAnimation::Running) {
+        m_animation->stop();
+    }
+    
+    m_animation->setStartValue(this->width());
+    m_animation->setEndValue(m_expanded ? EXPANDED_W : COLLAPSED_W);
+
+    // Keep ToolButtonTextBesideIcon during the whole expanding/collapsing phase
+    // purely for a better clipping effect. We'll set it to IconOnly when collapse is actually finished.
+    const auto style = Qt::ToolButtonTextBesideIcon;
+
+    m_launcherLabel->setVisible(true); // Keep label visible during both animations to allow clipping
+    
     m_toggleBtn->setIcon(paintedIcon(m_expanded ? QStringLiteral("collapse") : QStringLiteral("expand")));
     m_toggleBtn->setToolTip(m_expanded ? tr("Collapse navigation") : tr("Expand navigation"));
 
@@ -239,7 +272,7 @@ void HalkyNavBar::toggleExpand()
     applyUtil(m_settingsBtn, tr("Settings"));
     applyUtil(m_helpBtn, tr("Help"));
 
-    setFixedWidth(m_expanded ? EXPANDED_W : COLLAPSED_W);
+    m_animation->start();
 }
 
 // ── Page tracking ─────────────────────────────────────────────────────────────
