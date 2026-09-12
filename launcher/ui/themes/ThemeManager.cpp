@@ -33,6 +33,7 @@
 #include "ui/themes/HalkyLightTheme.h"
 #include "ui/themes/HalkyTheme.h"
 #include "ui/themes/GruvboxTheme.h"
+#include "ui/themes/UserCustomTheme.h"
 #include "ui/themes/SystemTheme.h"
 
 #include "Application.h"
@@ -144,6 +145,7 @@ void ThemeManager::initializeWidgets()
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<HalkyTheme>());
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<GruvboxTheme>());
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<HalkyLightTheme>());
+    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<UserCustomTheme>());
 
     themeDebugLog() << "<> Initializing System Widget Themes";
     QStringList styles = QStyleFactory::keys();

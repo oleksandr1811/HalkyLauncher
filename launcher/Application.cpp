@@ -700,6 +700,22 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         // Theming
         m_settings->registerSetting("IconTheme", QString("fluent_dark"));
         m_settings->registerSetting("ApplicationTheme", QString("Halky"));
+
+        m_settings->registerSetting("CustomTheme_Window", "#313131");
+        m_settings->registerSetting("CustomTheme_WindowText", "#FFFFFF");
+        m_settings->registerSetting("CustomTheme_Base", "#222222");
+        m_settings->registerSetting("CustomTheme_AlternateBase", "#2a2a2a");
+        m_settings->registerSetting("CustomTheme_ToolTipBase", "#FFFFFF");
+        m_settings->registerSetting("CustomTheme_ToolTipText", "#FFFFFF");
+        m_settings->registerSetting("CustomTheme_Text", "#FFFFFF");
+        m_settings->registerSetting("CustomTheme_Button", "#303030");
+        m_settings->registerSetting("CustomTheme_ButtonText", "#FFFFFF");
+        m_settings->registerSetting("CustomTheme_BrightText", "#FF0000");
+        m_settings->registerSetting("CustomTheme_Link", "#2fa3c6");
+        m_settings->registerSetting("CustomTheme_Highlight", "#96db59");
+        m_settings->registerSetting("CustomTheme_HighlightedText", "#000000");
+        m_settings->registerSetting("CustomTheme_PlaceholderText", "#A9A9A9");
+
         m_settings->registerSetting("BackgroundCat", QString(""));  // "" = None (no cat)
         m_settings->registerSetting("Snow", isWinter);
 

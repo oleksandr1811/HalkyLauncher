@@ -57,4 +57,7 @@ class AppearanceWidget : public QWidget {
     Ui::AppearanceWidget* m_ui;
     QTextCharFormat m_defaultFormat;
     bool m_themesOnly;
+    QWidget* m_customThemeWidget = nullptr;
+    QMap<QString, class QPushButton*> m_colorButtons;
+    void setupCustomThemeUI();
 };

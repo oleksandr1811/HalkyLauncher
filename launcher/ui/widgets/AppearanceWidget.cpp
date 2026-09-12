@@ -45,11 +45,17 @@
 
 #include <Application.h>
 #include "settings/SettingsObject.h"
+#include <QColorDialog>
+#include <QGroupBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
 
 AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
     : QWidget(parent), m_ui(new Ui::AppearanceWidget), m_themesOnly(themesOnly)
 {
     m_ui->setupUi(this);
+    setupCustomThemeUI();
 
     m_ui->catPreview->setGraphicsEffect(new QGraphicsOpacityEffect(this));
 
@@ -86,6 +92,55 @@ AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
     connect(m_ui->catPackFolder, &QPushButton::clicked, this,
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getCatPacksFolder().path()); });
     connect(m_ui->reloadThemesButton, &QPushButton::pressed, this, &AppearanceWidget::loadThemeSettings);
+}
+
+void AppearanceWidget::setupCustomThemeUI() {
+    m_customThemeWidget = new QGroupBox(tr("Custom Theme Colors"), this);
+    auto layout = new QGridLayout(m_customThemeWidget);
+
+    QStringList colorKeys = {
+        "Window", "WindowText", "Base", "AlternateBase", "ToolTipBase",
+        "ToolTipText", "Text", "Button", "ButtonText", "BrightText",
+        "Link", "Highlight", "HighlightedText", "PlaceholderText"
+    };
+
+    int row = 0;
+    int col = 0;
+    for (const auto& key : colorKeys) {
+        layout->addWidget(new QLabel(key), row, col * 2);
+        auto btn = new QPushButton(this);
+        // Make the button square and visually representing the color
+        btn->setFixedSize(60, 24);
+        m_colorButtons[key] = btn;
+
+        QColor initialColor = QColor(APPLICATION->settings()->get("CustomTheme_" + key).toString());
+        btn->setStyleSheet(QString("background-color: %1; border: 1px solid #777; border-radius: 3px;").arg(initialColor.name()));
+
+        connect(btn, &QPushButton::clicked, this, [this, key, btn]() {
+            QColor currentColor = QColor(APPLICATION->settings()->get("CustomTheme_" + key).toString());
+            QColor selected = QColorDialog::getColor(currentColor, this, tr("Select Color for %1").arg(key));
+            if (selected.isValid()) {
+                APPLICATION->settings()->set("CustomTheme_" + key, selected.name());
+                btn->setStyleSheet(QString("background-color: %1; border: 1px solid #777; border-radius: 3px;").arg(selected.name()));
+                if (APPLICATION->settings()->get("ApplicationTheme").toString() == "user-custom") {
+                    APPLICATION->themeManager()->applyCurrentlySelectedTheme();
+                }
+            }
+        });
+
+        layout->addWidget(btn, row, col * 2 + 1);
+        col++;
+        if (col > 1) {
+            col = 0;
+            row++;
+        }
+    }
+
+    // Insert into main layout right below the first group box (index 1)
+    if (m_ui->verticalLayout) {
+        m_ui->verticalLayout->insertWidget(1, m_customThemeWidget);
+    }
+    m_customThemeWidget->setVisible(APPLICATION->settings()->get("ApplicationTheme").toString() == "user-custom");
 }
 
 AppearanceWidget::~AppearanceWidget()
@@ -151,6 +206,10 @@ void AppearanceWidget::applyWidgetTheme(int index)
     if (originalAppTheme != newAppTheme) {
         settings->set("ApplicationTheme", newAppTheme);
         APPLICATION->themeManager()->applyCurrentlySelectedTheme();
+    }
+
+    if (m_customThemeWidget) {
+        m_customThemeWidget->setVisible(newAppTheme == "user-custom");
     }
 
     updateConsolePreview();
