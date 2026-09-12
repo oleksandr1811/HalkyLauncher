@@ -87,13 +87,19 @@ QToolButton* HalkyNavBar::makeNavButton(const QIcon& icon, const QString& text)
     btn->setObjectName(QStringLiteral("navItemBtn"));
     btn->setIcon(icon);
     btn->setIconSize(QSize(22, 22));
-    btn->setText(text);
+    btn->setText("   " + text);
     btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
     btn->setToolTip(text);
     btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btn->setFixedHeight(44);
     btn->setCheckable(true);
     btn->setAutoRaise(true);
+
+    QFont f = btn->font();
+    f.setPointSize(qMax(f.pointSize() + 1, 10));
+    f.setBold(true);
+    btn->setFont(f);
+
     return btn;
 }
 
@@ -103,12 +109,18 @@ QToolButton* HalkyNavBar::makeUtilButton(const QIcon& icon, const QString& text)
     btn->setObjectName(QStringLiteral("navActionBtn"));
     btn->setIcon(icon);
     btn->setIconSize(QSize(22, 22));
-    btn->setText(text);
+    btn->setText("   " + text);
     btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
     btn->setToolTip(text);
     btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btn->setFixedHeight(44);
     btn->setAutoRaise(true);
+
+    QFont f = btn->font();
+    f.setPointSize(qMax(f.pointSize() + 1, 10));
+    f.setBold(true);
+    btn->setFont(f);
+
     return btn;
 }
 
@@ -171,6 +183,12 @@ void HalkyNavBar::buildLayout()
     m_launcherLabel = new QLabel(BuildConfig.LAUNCHER_DISPLAYNAME, this);
     m_launcherLabel->setObjectName(QStringLiteral("navLauncherLabel"));
     m_launcherLabel->setVisible(false);  // shown only when expanded
+
+    QFont lf = m_launcherLabel->font();
+    lf.setPointSize(qMax(lf.pointSize() + 2, 11));
+    lf.setBold(true);
+    m_launcherLabel->setFont(lf);
+
     headerLayout->addWidget(m_launcherLabel, 1);
 
     m_mainLayout->addWidget(m_headerWidget);
@@ -302,7 +320,7 @@ void HalkyNavBar::retranslate()
     };
     for (int i = 0; i < m_navItems.size() && i < pageTexts.size(); ++i) {
         m_navItems[i].defaultText = pageTexts[i];
-        m_navItems[i].btn->setText(pageTexts[i]);
+        m_navItems[i].btn->setText("   " + pageTexts[i]);
         if (!m_expanded)
             m_navItems[i].btn->setToolTip(pageTexts[i]);
     }
@@ -310,7 +328,7 @@ void HalkyNavBar::retranslate()
     const QStringList utilTexts = { tr("Add Instance"), tr("Accounts"), tr("Folders"), tr("Settings"), tr("Help") };
     QList<QToolButton*> utilBtns = { m_addBtn, m_accountsBtn, m_foldersBtn, m_settingsBtn, m_helpBtn };
     for (int i = 0; i < utilBtns.size(); ++i) {
-        utilBtns[i]->setText(utilTexts[i]);
+        utilBtns[i]->setText("   " + utilTexts[i]);
         utilBtns[i]->setToolTip(m_expanded ? QString() : utilTexts[i]);
     }
 }
