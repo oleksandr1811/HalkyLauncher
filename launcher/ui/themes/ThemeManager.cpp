@@ -332,7 +332,8 @@ void ThemeManager::initializeCatPacks()
                                                    { "miside-screenshot", QObject::tr("MiSide Screenshot") },
                                                    { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
                                                    { "konata-gif", QObject::tr("Low-poly Konata") },
-                                                   { "cucumbers", QObject::tr("Cucumbers") } };
+                                                   { "cucumbers", QObject::tr("Cucumbers") },
+                                                   { "very-active-player-gif", QObject::tr("Very Active Player") } };
     for (const auto& [id, name] : HalkyCats) {
         addCatPack(std::make_unique<HalkyCatPack>(id, name));
     }
