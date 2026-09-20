@@ -60,4 +60,11 @@ class AppearanceWidget : public QWidget {
     QWidget* m_customThemeWidget = nullptr;
     QMap<QString, class QPushButton*> m_colorButtons;
     void setupCustomThemeUI();
+
+    // Navigation menu customization
+    QWidget* m_navMenuCustomWidget = nullptr;
+    class QFontComboBox* m_navMenuFontBox = nullptr;
+    class QSpinBox* m_navMenuFontSizeBox = nullptr;
+    QMap<QString, class QCheckBox*> m_navMenuCheckBoxes;
+    void setupNavMenuCustomUI();
 };

@@ -1857,6 +1857,11 @@ void MainWindow::globalSettingsClosed()
     updateLaunchButton();
     updateThemeMenu();
     updateStatusCenter();
+
+    // Apply navigation menu settings
+    if (m_navBar)
+        m_navBar->applySettings();
+
     // This needs to be done to prevent UI elements disappearing in the event the config is changed
     // but Prism Launcher exits abnormally, causing the window state to never be saved:
     APPLICATION->settings()->set("MainWindowState", QString::fromUtf8(saveState().toBase64()));

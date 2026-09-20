@@ -756,6 +756,19 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("ConsoleMaxLines", 100000);
         m_settings->registerSetting("ConsoleOverflowStop", true);
 
+        // Navigation menu settings
+        m_settings->registerSetting("NavMenuFont", QString());  // Empty = use default
+        m_settings->registerSetting("NavMenuFontSize", 10);
+        m_settings->registerSetting("NavMenuShowHome", true);
+        m_settings->registerSetting("NavMenuShowLibrary", true);
+        m_settings->registerSetting("NavMenuShowModpacks", true);
+        m_settings->registerSetting("NavMenuShowMods", true);
+        m_settings->registerSetting("NavMenuShowResourcePacks", true);
+        m_settings->registerSetting("NavMenuShowShaders", true);
+        m_settings->registerSetting("NavMenuShowAddInstance", true);
+        m_settings->registerSetting("NavMenuShowAccounts", true);
+        m_settings->registerSetting("NavMenuShowFolders", true);
+
         logModel->setMaxLines(getConsoleMaxLines(settings()));
         logModel->setStopOnOverflow(shouldStopOnConsoleOverflow(settings()));
         logModel->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(logModel->getMaxLines()));

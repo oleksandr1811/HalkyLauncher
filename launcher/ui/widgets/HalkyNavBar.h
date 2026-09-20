@@ -34,6 +34,7 @@ class HalkyNavBar : public QFrame {
     Page currentPage() const { return m_currentPage; }
     bool isExpanded() const { return m_expanded; }
     void retranslate();
+    void applySettings();
 
    signals:
     void pageSelected(int page);

@@ -56,6 +56,7 @@ AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
 {
     m_ui->setupUi(this);
     setupCustomThemeUI();
+    setupNavMenuCustomUI();
 
     m_ui->catPreview->setGraphicsEffect(new QGraphicsOpacityEffect(this));
 
@@ -143,6 +144,64 @@ void AppearanceWidget::setupCustomThemeUI() {
     m_customThemeWidget->setVisible(APPLICATION->settings()->get("ApplicationTheme").toString() == "user-custom");
 }
 
+void AppearanceWidget::setupNavMenuCustomUI()
+{
+    m_navMenuCustomWidget = new QGroupBox(tr("Navigation Menu Customization"), this);
+    auto layout = new QVBoxLayout(m_navMenuCustomWidget);
+
+    // Font settings
+    auto fontLayout = new QHBoxLayout();
+    fontLayout->addWidget(new QLabel(tr("Font:"), this));
+
+    m_navMenuFontBox = new QFontComboBox(this);
+    fontLayout->addWidget(m_navMenuFontBox);
+
+    fontLayout->addWidget(new QLabel(tr("Size:"), this));
+
+    m_navMenuFontSizeBox = new QSpinBox(this);
+    m_navMenuFontSizeBox->setMinimum(8);
+    m_navMenuFontSizeBox->setMaximum(20);
+    m_navMenuFontSizeBox->setValue(10);
+    fontLayout->addWidget(m_navMenuFontSizeBox);
+
+    layout->addLayout(fontLayout);
+
+    // Visibility settings
+    auto visibilityGroup = new QGroupBox(tr("Visible Menu Items"), this);
+    auto visibilityLayout = new QVBoxLayout(visibilityGroup);
+
+    struct MenuItem {
+        QString key;
+        QString label;
+    };
+
+    QList<MenuItem> menuItems = {
+        {"NavMenuShowHome", tr("Home")},
+        {"NavMenuShowLibrary", tr("Library")},
+        {"NavMenuShowModpacks", tr("Modpacks")},
+        {"NavMenuShowMods", tr("Mods")},
+        {"NavMenuShowResourcePacks", tr("Resource Packs")},
+        {"NavMenuShowShaders", tr("Shaders")},
+        {"NavMenuShowAddInstance", tr("Add Instance")},
+        {"NavMenuShowAccounts", tr("Accounts")},
+        {"NavMenuShowFolders", tr("Folders")}
+    };
+
+    for (const auto& item : menuItems) {
+        auto checkbox = new QCheckBox(item.label, this);
+        checkbox->setChecked(true);
+        m_navMenuCheckBoxes[item.key] = checkbox;
+        visibilityLayout->addWidget(checkbox);
+    }
+
+    layout->addWidget(visibilityGroup);
+
+    // Insert into main layout after custom theme widget (index 2)
+    if (m_ui->verticalLayout) {
+        m_ui->verticalLayout->insertWidget(2, m_navMenuCustomWidget);
+    }
+}
+
 AppearanceWidget::~AppearanceWidget()
 {
     delete m_ui;
@@ -158,6 +217,18 @@ void AppearanceWidget::applySettings()
     auto catFit = m_ui->catFitComboBox->currentIndex();
     settings->set("CatFit", catFit == 0 ? "fit" : catFit == 1 ? "fill" : catFit == 2 ? "cover" : "strech");
     applySnow(m_ui->snowCheckBox->isChecked());
+
+    // Apply navigation menu settings
+    if (m_navMenuFontBox) {
+        QString navFont = m_navMenuFontBox->currentFont().family();
+        settings->set("NavMenuFont", navFont);
+    }
+    if (m_navMenuFontSizeBox) {
+        settings->set("NavMenuFontSize", m_navMenuFontSizeBox->value());
+    }
+    for (auto it = m_navMenuCheckBoxes.constBegin(); it != m_navMenuCheckBoxes.constEnd(); ++it) {
+        settings->set(it.key(), it.value()->isChecked());
+    }
 }
 
 void AppearanceWidget::loadSettings()
@@ -180,6 +251,24 @@ void AppearanceWidget::loadSettings()
 
     auto catFit = settings->get("CatFit").toString();
     m_ui->catFitComboBox->setCurrentIndex(catFit == "fit" ? 0 : catFit == "fill" ? 1 : catFit == "cover" ? 2 : 3);
+
+    // Load navigation menu settings
+    if (m_navMenuFontBox) {
+        QString navFont = settings->get("NavMenuFont").toString();
+        if (!navFont.isEmpty()) {
+            QFont font(navFont);
+            m_navMenuFontBox->setCurrentFont(font);
+        }
+    }
+    if (m_navMenuFontSizeBox) {
+        int navFontSize = settings->get("NavMenuFontSize").toInt();
+        if (navFontSize > 0) {
+            m_navMenuFontSizeBox->setValue(navFontSize);
+        }
+    }
+    for (auto it = m_navMenuCheckBoxes.constBegin(); it != m_navMenuCheckBoxes.constEnd(); ++it) {
+        it.value()->setChecked(settings->get(it.key()).toBool());
+    }
 }
 
 void AppearanceWidget::retranslateUi()

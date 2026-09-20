@@ -6,6 +6,7 @@
 
 #include "HalkyNavBar.h"
 
+#include <Application.h>
 #include <BuildConfig.h>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -291,6 +292,63 @@ void HalkyNavBar::toggleExpand()
     applyUtil(m_helpBtn, tr("Help"));
 
     m_animation->start();
+}
+
+// ── Apply settings ────────────────────────────────────────────────────────────
+
+void HalkyNavBar::applySettings()
+{
+    auto settings = APPLICATION->settings();
+
+    // Apply font settings
+    QString navFont = settings->get("NavMenuFont").toString();
+    int navFontSize = settings->get("NavMenuFontSize").toInt();
+
+    QFont font;
+    if (!navFont.isEmpty()) {
+        font.setFamily(navFont);
+    }
+    if (navFontSize > 0) {
+        font.setPointSize(navFontSize);
+    }
+    font.setBold(true);
+
+    // Apply font to all nav buttons
+    for (auto& item : m_navItems) {
+        item.btn->setFont(font);
+    }
+
+    // Apply font to utility buttons
+    m_addBtn->setFont(font);
+    m_accountsBtn->setFont(font);
+    m_foldersBtn->setFont(font);
+    m_settingsBtn->setFont(font);
+    m_helpBtn->setFont(font);
+
+    // Apply visibility settings for nav items
+    const QList<QPair<QString, Page>> visibilitySettings = {
+        {"NavMenuShowHome", HomePage},
+        {"NavMenuShowLibrary", LibraryPage},
+        {"NavMenuShowModpacks", ModpacksPage},
+        {"NavMenuShowMods", ModsPage},
+        {"NavMenuShowResourcePacks", ResourcePacksPage},
+        {"NavMenuShowShaders", ShaderPacksPage}
+    };
+
+    for (const auto& setting : visibilitySettings) {
+        bool visible = settings->get(setting.first).toBool();
+        for (auto& item : m_navItems) {
+            if (item.page == setting.second) {
+                item.btn->setVisible(visible);
+                break;
+            }
+        }
+    }
+
+    // Apply visibility settings for utility buttons
+    m_addBtn->setVisible(settings->get("NavMenuShowAddInstance").toBool());
+    m_accountsBtn->setVisible(settings->get("NavMenuShowAccounts").toBool());
+    m_foldersBtn->setVisible(settings->get("NavMenuShowFolders").toBool());
 }
 
 // ── Page tracking ─────────────────────────────────────────────────────────────
