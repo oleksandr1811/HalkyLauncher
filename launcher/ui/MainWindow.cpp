@@ -1242,6 +1242,10 @@ void MainWindow::defaultAccountChanged()
         // Update the account section in the right-side news panel
         if (m_newsPanel)
             m_newsPanel->setCurrentAccount(account->displayName(), face);
+
+        // Update the home page account display
+        if (m_homePage)
+            m_homePage->refreshAccount();
         return;
     }
 
@@ -1251,6 +1255,10 @@ void MainWindow::defaultAccountChanged()
 
     if (m_newsPanel)
         m_newsPanel->setCurrentAccount(QString(), QPixmap());
+
+    // Update the home page account display
+    if (m_homePage)
+        m_homePage->refreshAccount();
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* ev)
