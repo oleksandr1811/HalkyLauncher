@@ -4,7 +4,7 @@
 
 # Halky Launcher
 
-A Prism(Freesm) Launcher fork that features an **excellent UI and rich customizations**, removes offline account restrictions, and adds custom auth server support.
+A **Minecraft launcher** — a Prism (Freesm) Launcher fork that features an **excellent UI and rich customizations**, removes offline account restrictions, and adds custom auth server support.
 
 *This fork is **not** endorsed by Prism Launcher or Freesm Launcher.*
 
@@ -46,12 +46,12 @@ A Prism(Freesm) Launcher fork that features an **excellent UI and rich customiza
 
 ## ✨ Features
 
-* **True Offline Mode:** Play without being forced to sign in with a Microsoft account.
+* **True Offline Mode:** Play Minecraft without being forced to sign in with a Microsoft account.
 * **Ely.by Integration:** Native support out of the box. See your custom skins anywhere without installing external mods or plugins.
 * **Custom Authentication:** Full support for your own custom auth servers.
 * **Smart Screenshots:** In-game screenshots are automatically copied directly to your clipboard history.
 * **Winter Magic:** Animated snow effects for those who love winter vibes (automatically activates during winter).
-* **Easy Content Installation:** Seamlessly download mods, shaders, modpacks, and resource packs via Modrinth and CurseForge.
+* **Easy Content Installation:** Seamlessly download Minecraft mods, shaders, modpacks, and resource packs via Modrinth and CurseForge.
 * **FLOSS:** Fully Free, Libre, and Open Source Software.
 * **All-in-One:** Includes all standard features from Prism Launcher and MultiMC.
 
