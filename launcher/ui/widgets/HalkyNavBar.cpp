@@ -8,6 +8,7 @@
 
 #include <Application.h>
 #include <BuildConfig.h>
+#include "settings/SettingsObject.h"
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QIcon>

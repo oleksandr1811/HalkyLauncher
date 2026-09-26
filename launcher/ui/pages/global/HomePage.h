@@ -24,6 +24,7 @@ class HomePage : public QWidget {
     explicit HomePage(QWidget* parent = nullptr);
 
     void refresh();
+    void refreshAccount();
 
    signals:
     void launchInstance(const QString& instanceId);
@@ -33,7 +34,6 @@ class HomePage : public QWidget {
 
    private:
     void buildLayout();
-    void refreshAccount();
     void refreshInstances();
     void buildInstanceCard(BaseInstance* inst);
 
