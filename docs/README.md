@@ -4,7 +4,7 @@
 
 # Halky Launcher
 
-A **Minecraft launcher** — a Prism (Freesm) Launcher fork that features an **excellent UI and rich customizations**, removes offline account restrictions, and adds custom auth server support.
+A **Minecraft launcher** - a Prism (Freesm) Launcher fork that features an **excellent UI and rich customizations**, removes offline account restrictions, and adds custom auth server support.
 
 *This fork is **not** endorsed by Prism Launcher or Freesm Launcher.*
 
