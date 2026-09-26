@@ -25,6 +25,10 @@ void Telemetry::sendLaunchPing()
     if (!APPLICATION->settings()->get(QStringLiteral("TelemetryEnabled")).toBool())
         return;
 
+    // Do not send telemetry on dev builds (e.g. from GitHub Actions)
+    if (BuildConfig.VERSION_CHANNEL != QLatin1StringView("stable") && BuildConfig.GIT_TAG != BuildConfig.versionString())
+        return;
+
     // Determine whether this is the very first launch
     APPLICATION->settings()->getOrRegisterSetting(QStringLiteral("TelemetryFirstRunSent"), false);
     const bool firstRun = !APPLICATION->settings()->get(QStringLiteral("TelemetryFirstRunSent")).toBool();

@@ -159,7 +159,6 @@ jobs:
       - name: Install MSVC (Windows MSVC)
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          vsversion: 2022
           arch: ${{ matrix.vcvars_arch }}
 
       - name: Add QT_HOST_PATH var (Windows MSVC arm64)
