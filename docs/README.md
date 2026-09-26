@@ -26,7 +26,7 @@ A **Minecraft launcher** - a Prism (Freesm) Launcher fork that features an **exc
   <summary>Click to expand</summary>
 
   <div align="center" style="margin-top: 10px;">
-    <p><em>Screenshots are temporarily removed</em></p>
+    <p><em>Screenshots are temporarily removed — the UI is under active development and changes frequently, so screenshots would quickly go out of date. They'll be added back once the UI stabilizes.</em></p>
     <!-- 
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
       <img src="screenshots/HalkyLauncher_home_screenshot.png" alt="Dark theme dashboard" width="512" />
