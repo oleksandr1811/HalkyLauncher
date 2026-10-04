@@ -129,7 +129,7 @@ void InlineResourcePage::updateInstanceCombo()
     }
 
     if (m_instanceCombo->count() == 0) {
-        m_instanceCombo->addItem(tr("No modded instances available"), QString());
+        m_instanceCombo->addItem(tr("No instances available"), QString());
         clearBrowser();
         return;
     }
