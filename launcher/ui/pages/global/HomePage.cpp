@@ -247,7 +247,9 @@ void HomePage::buildInstanceCard(BaseInstance* inst)
     // Launch button
     auto* launchBtn = new QPushButton(tr("Play"), card);
     launchBtn->setObjectName(QStringLiteral("homeInstLaunchBtn"));
-    launchBtn->setFixedSize(80, 36);
+    launchBtn->setFixedHeight(36);
+    launchBtn->setMinimumWidth(80);
+    launchBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     const QString instId = inst->id();
     connect(launchBtn, &QPushButton::clicked, this, [this, instId]() { emit launchInstance(instId); });
     layout->addWidget(launchBtn);
