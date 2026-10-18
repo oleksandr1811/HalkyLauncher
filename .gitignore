@@ -65,6 +65,7 @@ flatbuild
 *.snap
 
 halkyi8n
+halky-site
 
 /.*
 !/.github
