@@ -52,9 +52,13 @@ ResourceFolderModel::ResourceFolderModel(const QDir& dir, BaseInstance* instance
 
 ResourceFolderModel::~ResourceFolderModel()
 {
-    // Wait for background threads to finish to prevent segfaults
-    while (!QThreadPool::globalInstance()->waitForDone(100))
-        QCoreApplication::processEvents();
+    // Abort any pending tasks and wait for the thread pool to drain.
+    // We must NOT call processEvents() here: on MinGW that re-enters the
+    // event loop, queued signals restart new tasks and the loop never exits.
+    if (m_current_update_task)
+        m_current_update_task->abort();
+    m_resourceResolver.abort();
+    QThreadPool::globalInstance()->waitForDone();
 }
 
 bool ResourceFolderModel::startWatching(const QStringList& paths)
