@@ -52,13 +52,17 @@ ResourceFolderModel::ResourceFolderModel(const QDir& dir, BaseInstance* instance
 
 ResourceFolderModel::~ResourceFolderModel()
 {
-    // Abort any pending tasks and wait for the thread pool to drain.
-    // We must NOT call processEvents() here: on MinGW that re-enters the
-    // event loop, queued signals restart new tasks and the loop never exits.
+    // Abort pending tasks so the thread pool threads finish quickly.
+    // We must NOT call processEvents() here — on MinGW/arm64 that re-enters
+    // the event loop, queued signals restart new tasks, and the loop never exits.
+    // We also must NOT call waitForDone() without a timeout: Tasks use
+    // setAutoDelete(false), which keeps them registered in the global pool
+    // even after completion, causing waitForDone() to block forever on arm64.
     if (m_current_update_task)
         m_current_update_task->abort();
     m_resourceResolver.abort();
-    QThreadPool::globalInstance()->waitForDone();
+    // Give threads up to 5 s to finish after abort; don't block forever.
+    QThreadPool::globalInstance()->waitForDone(5000);
 }
 
 bool ResourceFolderModel::startWatching(const QStringList& paths)
