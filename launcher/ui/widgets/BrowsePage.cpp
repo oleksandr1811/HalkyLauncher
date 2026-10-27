@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Halky Launcher
- *  Copyright (C) 2024-2025 Halky Launcher Contributors
+ *  Copyright (C) 2026 Halky Launcher Contributors
  */
 
 #include "BrowsePage.h"

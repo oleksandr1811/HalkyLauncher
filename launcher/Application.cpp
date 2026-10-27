@@ -27,7 +27,7 @@
  * permission notice:
  *
  *      Copyright 2013-2021 MultiMC Contributors
- *      Copyright 2024-2025 HalkyLauncher Maintainers
+ *      Copyright 2026 HalkyLauncher Maintainers
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
